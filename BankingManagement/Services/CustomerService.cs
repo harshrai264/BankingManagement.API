@@ -1,6 +1,7 @@
 ﻿using BankingManagement.Data;
 using BankingManagement.Dtos;
 using BankingManagement.Models;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace BankingManagement.Services
@@ -12,9 +13,10 @@ namespace BankingManagement.Services
     public interface ICustomerService
     {
         Task<List<Customer>> AddCustomerAsync(List<CreateCustomerDto> customerDtos);
-        Task<Customer> GetCustomerAsync(int customerId);
+        Task<CustomerResponseDto> GetCustomerAsync(int customerId);
         Task<Customer> DeleteCustomerAsync(int customerId);
-        Task<Customer> UpdateCustomerAsync(int customerId ,UpdateCustomerDto customerDto);
+        Task<CustomerResponseDto> UpdateCustomerAsync(int customerId ,UpdateCustomerDto customerDto);
+        Task<List<CustomerResponseDto>> GetAllCustomersAsync();
 
     }
     public class CustomerService: ICustomerService
@@ -25,6 +27,7 @@ namespace BankingManagement.Services
         {
             _context = context;
         }
+
 
 
         //  to add the customer to the database and return the added customer object asynchronously.
@@ -47,13 +50,57 @@ namespace BankingManagement.Services
         }
 
         // to get the customer
-        public async Task<Customer?> GetCustomerAsync(int customerId) 
+        public async Task<CustomerResponseDto?> GetCustomerAsync(int customerId)
         {
 
-        var customer =await _context.Customers.FindAsync(customerId);
+            //var customer =await _context.Customers.FindAsync(customerId);
 
-            return customer;
+            var customer = await _context.Customers.Include(c => c.Account).FirstOrDefaultAsync(c => c.CustomerId == customerId);
+            if (customer == null)
+            {
+                return null;
+            }
+            return new CustomerResponseDto
+            {
+                CustomerId = customer.CustomerId,
+                Name = customer.Name,
+                Email = customer.Email,
+                Phone = customer.Phone,
+                Address = customer.Address,
+                CreatedDate = customer.Createddate,
+                Account = customer.Account == null ? null : new AccountResponseDto
+                {
+                    AccountId = customer.Account.AccountId,
+                    AccountNumber = customer.Account.AccountNumber,
+                    Balance = customer.Account.Balance,
+                    CreatedDate = customer.Account.CreatedDate
+
+                }
+            };
+         
         }
+        // to get all the customers
+        public async Task<List<CustomerResponseDto>> GetAllCustomersAsync()
+        {
+            var customers = await _context.Customers.Include(c => c.Account).ToListAsync();
+            return customers.Select(customer => new CustomerResponseDto
+            {
+                CustomerId = customer.CustomerId,
+                Name = customer.Name,
+                Email = customer.Email,
+                Phone = customer.Phone,
+                Address = customer.Address,
+                CreatedDate = customer.Createddate,
+                Account = customer.Account == null ? null : new AccountResponseDto
+                {
+                    AccountId = customer.Account.AccountId,
+                    AccountNumber = customer.Account.AccountNumber,
+                    Balance = customer.Account.Balance,
+                    CreatedDate = customer.Account.CreatedDate
+                }
+            }).ToList();
+        }
+
 
         // to delete the customer
 
@@ -73,25 +120,61 @@ namespace BankingManagement.Services
         }
 
         // to update the customer
-        public async Task<Customer?> UpdateCustomerAsync(int customerId ,UpdateCustomerDto customerDto)
+        public async Task<CustomerResponseDto?> UpdateCustomerAsync(int customerId, UpdateCustomerDto customerDto)
         {
-            var customer = await _context.Customers.FindAsync(customerId);
+            //var customer = await _context.Customers.FindAsync(customerId);
 
+            //if (customer == null)
+            //{
+            //  return null;
+            //}
+
+            //customer.Name = customerDto.Name;
+            //customer.Email = customerDto.Email;
+            //customer.Phone = customerDto.Phone;
+            //customer.Address = customerDto.Address;
+            //customer.Createddate = DateTime.Now;
+
+            //await _context.SaveChangesAsync();
+            //return customer;
+
+
+            var customer = await _context.Customers.Include(c => c.Account).FirstOrDefaultAsync(c => c.CustomerId == customerId);
             if (customer == null)
             {
-              return null;
+                return null;
             }
 
+            // Update Customer
             customer.Name = customerDto.Name;
             customer.Email = customerDto.Email;
             customer.Phone = customerDto.Phone;
             customer.Address = customerDto.Address;
-            customer.Createddate = DateTime.Now;
 
             await _context.SaveChangesAsync();
-            return customer;
 
+            return new CustomerResponseDto
+            {
+
+                CustomerId = customer.CustomerId,
+                Name = customer.Name,
+                Email = customer.Email,
+                Phone = customer.Phone,
+                Address = customer.Address,
+                CreatedDate = customer.Createddate,
+
+                Account = customer.Account == null ? null : new AccountResponseDto
+                {
+                    AccountId = customer.Account.AccountId,
+                    AccountNumber = customer.Account.AccountNumber,
+                    CustomerId = customer.Account.CustomerId,
+                    Balance = customer.Account.Balance,
+                    Status = customer.Account.Status,
+                    CreatedDate = customer.Account.CreatedDate
+                }
+            };
         }
+
 
 
 

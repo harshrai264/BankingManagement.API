@@ -46,10 +46,24 @@ namespace BankingManagement.Controllers
             return Ok(result);
         }
 
+        // to get all the customers
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAllCustomers()
+        {
+           
+            var result = await _customerService.GetAllCustomersAsync();
+            if (result == null)
+            {
+                return BadRequest();
+            }
+            return Ok(result);
+        }
+
         // to delete the customer by id
 
         [HttpDelete("Delete/{id}")]
-
+            
         public async Task<IActionResult> DeleteCustomer(int id) {
 
             var result = await _customerService.DeleteCustomerAsync(id);

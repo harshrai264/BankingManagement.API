@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="BankingManagement.Web/BankingManagement.Web.csproj" Id="c7d6b605-534a-4762-83ab-cf618b3c0872" />
   <Project Path="BankingManagement/BankingManagement.csproj" />
 </Solution>

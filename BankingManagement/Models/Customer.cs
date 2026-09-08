@@ -15,5 +15,7 @@ namespace BankingManagement.Models
         public string Phone { get; set; }
         public string Address { get; set; } 
         public DateTime Createddate { get; set; }
+
+        public Account? Account { get; set; }  // this is used to create one to one relationship between customer and account
     }
 }

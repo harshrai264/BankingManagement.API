@@ -12,6 +12,7 @@ namespace BankingManagement.Models
         public string Status { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
 
-
+        // Navigation property to the Customer entity
+        public Customer? Customer { get; set; }  // this is used to create one to one relationship between customer and account
     }
 }

@@ -27,10 +27,27 @@ namespace BankingManagement.Data
             modelBuilder.Entity<Account>()
                 .Property(a => a.Balance)
                 .HasPrecision(18, 2);
+
+            // to set up one-to-one relationship between Customer and Account entities
+            modelBuilder.Entity<Account>()
+           .HasOne(a => a.Customer)
+           .WithOne(c => c.Account)
+           .HasForeignKey<Account>(a => a.CustomerId);
         }
 
         //18 → maximum total digits
-//2 → digits after the decimal point
+        
+        //2 → digits after the decimal point
+
+        //protected override void OnModelCreated (ModelBuilder modelBuilder)
+        //{
+        //    modelBuilder.Entity<Account>()
+        //    .HasOne(a => a.Customer)
+        //    .WithOne(c => c.Account)
+        //    .HasForeignKey<Account>(a => a.CustomerId);
+        //}
+
     }
+
     }
 
