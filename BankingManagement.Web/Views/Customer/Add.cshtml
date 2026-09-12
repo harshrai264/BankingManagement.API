@@ -1,0 +1,160 @@
+﻿@model CreateCustomerModel
+
+@{
+    ViewData["Title"] = "Add Customer";
+}
+
+<div class="container py-5">
+
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+
+            <div class="card border-0 shadow-lg rounded-4">
+
+                <!-- Header -->
+                <div class="card-body p-4 p-md-5">
+
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle"
+                                  style="width: 60px; height: 60px;">
+                                <i class="bi bi-person-plus fs-3"></i>
+                            </span>
+                        </div>
+
+                        <h2 class="fw-bold mb-1">Add Customer</h2>
+                        <p class="text-muted mb-0">
+                            Enter the customer details below
+                        </p>
+                    </div>
+
+                    <form asp-action="Add" method="post">
+
+                        <!-- General validation -->
+                        <div asp-validation-summary="ModelOnly"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+
+                        <!-- Name -->
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-semibold">
+                                Customer Name
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-person text-muted"></i>
+                                </span>
+
+                                <input asp-for="Name"
+                                       class="form-control border-start-0"
+                                       placeholder="Enter customer name" />
+                            </div>
+
+                            <span asp-validation-for="Name"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label asp-for="Email" class="form-label fw-semibold">
+                                Email Address
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-envelope text-muted"></i>
+                                </span>
+
+                                <input asp-for="Email"
+                                       type="email"
+                                       class="form-control border-start-0"
+                                       placeholder="example@email.com" />
+                            </div>
+
+                            <span asp-validation-for="Email"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-4">
+                            <label asp-for="Phone" class="form-label fw-semibold">
+                                Phone Number
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="bi bi-telephone text-muted"></i>
+                                </span>
+
+                                <input asp-for="Phone"
+                                       type="tel"
+                                       maxlength="10"
+                                       class="form-control border-start-0"
+                                       placeholder="10-digit phone number" />
+                            </div>
+
+                            <span asp-validation-for="Phone"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="mb-4">
+                            <label asp-for="Address" class="form-label fw-semibold">
+                                Address
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 align-items-start pt-2">
+                                    <i class="bi bi-geo-alt text-muted"></i>
+                                </span>
+
+                                <textarea asp-for="Address"
+                                          class="form-control border-start-0"
+                                          rows="3"
+                                          placeholder="Enter customer address"></textarea>
+                            </div>
+
+                            <span asp-validation-for="Address"
+                                  class="text-danger small">
+                            </span>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-2 justify-content-end pt-2">
+
+                            <a asp-action="Index"
+                               class="btn btn-light border px-4">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Cancel
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+                                <i class="bi bi-person-plus me-1"></i>
+                                Add Customer
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+   
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
