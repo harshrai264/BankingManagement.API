@@ -101,16 +101,19 @@ namespace BankingManagement.Services
         //Get all account
         public async Task<List<AccountResponseDto>> GetAllAccountasync()
         {
-            var result = await _context.Accounts.ToListAsync();
+            var result = await _context.Accounts
+                         .Include(account => account.Customer).ToListAsync();
 
             return result.Select (account=> new AccountResponseDto
             {
                 AccountId = account.AccountId,
                 AccountNumber = account.AccountNumber,
+                CustomerName= account.Customer.Name,
                 CustomerId = account.CustomerId,
                 Balance = account.Balance,
                 Status = account.Status,
-                CreatedDate = account.CreatedDate
+                CreatedDate = account.CreatedDate,
+                
             }).ToList();
         }
 
