@@ -76,13 +76,15 @@ namespace BankingManagement.Services
                 CustomerId = account.CustomerId,
                 Balance = account.Balance,
                 Status = account.Status,
-                CreatedDate = account.CreatedDate
+                CreatedDate = account.CreatedDate,
+                
             };
         }
         //Get account by accountid
         public async Task<AccountResponseDto?> GetAccountAsync(int accountId)
         {
-            var account = await _context.Accounts.FindAsync(accountId);
+            var account = await _context.Accounts
+             .Include(a => a.Customer).FirstOrDefaultAsync(a => a.AccountId == accountId);
             if (account == null)
             {
                 return null;
@@ -94,7 +96,8 @@ namespace BankingManagement.Services
                 CustomerId = account.CustomerId,
                 Balance = account.Balance,
                 Status = account.Status,
-                CreatedDate = account.CreatedDate
+                CreatedDate = account.CreatedDate,
+                CustomerName=account.Customer.Name,
             };
         }
 

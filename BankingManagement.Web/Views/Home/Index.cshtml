@@ -1,552 +1,142 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="container-fluid px-4 py-4">
+<div class="dashboard-container">
 
     <!-- Welcome Header -->
-    <div class="dashboard-header mb-4">
-
+    <div class="dashboard-header">
         <div>
-            <p class="text-muted mb-1">Welcome back 👋</p>
-
-            <h1 class="fw-bold mb-1">
-                Banking Management
-            </h1>
-
-            <p class="text-muted mb-0">
-                Manage customers, accounts and banking operations from one place.
-            </p>
+            <span class="welcome-text">Welcome back 👋</span>
+            <h1>Banking Management</h1>
+            <p>Manage customers, accounts and banking operations from one place.</p>
         </div>
-
-        <div class="dashboard-date">
-            <i class="bi bi-calendar3"></i>
+        <div class="date-box">
+            <span><i class="bi bi-calendar-event"></i></span>
             @DateTime.Now.ToString("dd MMM yyyy")
         </div>
-
     </div>
 
-
-    <!-- Statistics / Feature Cards -->
-    <div class="row g-4 mb-4">
+    <!-- Main Modules -->
+    <div class="module-grid">
 
         <!-- Customers -->
-        <div class="col-md-6 col-xl-3">
-
-            <div class="stat-card">
-
-                <div class="stat-icon customer-icon">
-                    <i class="bi bi-people-fill"></i>
-                </div>
-
-                <div>
-                    <p class="stat-title">Customers</p>
-
-                    <h3>Manage</h3>
-
-                    <a asp-controller="Customer"
-                       asp-action="Index"
-                       class="stat-link">
-
-                        View Customers
-                        <i class="bi bi-arrow-right"></i>
-
-                    </a>
-                </div>
-
+        <div class="module-card">
+            <div class="module-icon customers-icon">
+                <i class="bi bi-people-fill"></i>
             </div>
-
+            <div class="module-content">
+                <span class="module-label">Customers</span>
+                <h3>Manage Customers</h3>
+                <p>View and manage all customers.</p>
+                <a asp-controller="Customer" asp-action="Index" class="module-link">
+                    View Customers <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
         </div>
-
 
         <!-- Accounts -->
-        <div class="col-md-6 col-xl-3">
-
-            <div class="stat-card">
-
-                <div class="stat-icon account-icon">
-                    <i class="bi bi-bank"></i>
-                </div>
-
-                <div>
-                    <p class="stat-title">Accounts</p>
-
-                    <h3>Manage</h3>
-
-                    <span class="stat-link disabled-link">
-                        Coming Soon
-                    </span>
-                </div>
-
+        <div class="module-card">
+            <div class="module-icon accounts-icon">
+                <i class="bi bi-bank2"></i>
             </div>
-
+            <div class="module-content">
+                <span class="module-label">Accounts</span>
+                <h3>Manage Accounts</h3>
+                <p>Create, view and manage customer bank accounts.</p>
+                <a asp-controller="Account" asp-action="Index" class="primary-btn">
+                    <i class="bi bi-arrow-right"></i> Manage Accounts
+                </a>
+            </div>
         </div>
-
 
         <!-- Transactions -->
-        <div class="col-md-6 col-xl-3">
-
-            <div class="stat-card">
-
-                <div class="stat-icon transaction-icon">
-                    <i class="bi bi-arrow-left-right"></i>
-                </div>
-
-                <div>
-                    <p class="stat-title">Transactions</p>
-
-                    <h3>Monitor</h3>
-
-                    <span class="stat-link disabled-link">
-                        Coming Soon
-                    </span>
-                </div>
-
+        <div class="module-card disabled-card">
+            <div class="module-icon transactions-icon">
+                <i class="bi bi-arrow-left-right"></i>
             </div>
-
+            <div class="module-content">
+                <span class="module-label">Transactions</span>
+                <h3>Monitor Transactions</h3>
+                <p>Monitor and manage banking transactions.</p>
+                <span class="coming-soon">Coming Soon</span>
+            </div>
         </div>
 
-
         <!-- Payments -->
-        <div class="col-md-6 col-xl-3">
-
-            <div class="stat-card">
-
-                <div class="stat-icon payment-icon">
-                    <i class="bi bi-credit-card-fill"></i>
-                </div>
-
-                <div>
-                    <p class="stat-title">Payments</p>
-
-                    <h3>Manage</h3>
-
-                    <span class="stat-link disabled-link">
-                        Coming Soon
-                    </span>
-                </div>
-
+        <div class="module-card disabled-card">
+            <div class="module-icon payments-icon">
+                <i class="bi bi-credit-card-fill"></i>
             </div>
-
+            <div class="module-content">
+                <span class="module-label">Payments</span>
+                <h3>Manage Payments</h3>
+                <p>Manage customer payment operations.</p>
+                <span class="coming-soon">Coming Soon</span>
+            </div>
         </div>
 
     </div>
 
-
     <!-- Quick Actions -->
-    <div class="dashboard-card">
-
-        <div class="card-heading">
-
+    <div class="quick-actions">
+        <div class="quick-header">
             <div>
-                <h4>Quick Actions</h4>
-
-                <p>
-                    Frequently used banking operations
-                </p>
+                <h2>Quick Actions</h2>
+                <p>Frequently used banking operations</p>
             </div>
-
-            <i class="bi bi-lightning-charge-fill heading-icon"></i>
-
+            <i class="bi bi-lightning-charge-fill quick-icon"></i>
         </div>
 
-
-        <div class="row g-3">
-
-            <!-- Manage Customers -->
-            <div class="col-md-6 col-lg-3">
-
-                <a asp-controller="Customer"
-                   asp-action="Index"
-                   class="action-card">
-
-                    <div class="action-icon">
-                        <i class="bi bi-people-fill"></i>
-                    </div>
-
-                    <div>
-                        <h5>Customers</h5>
-
-                        <p>
-                            View and manage customers
-                        </p>
-                    </div>
-
-                    <i class="bi bi-chevron-right action-arrow"></i>
-
-                </a>
-
-            </div>
-
+        <div class="quick-grid">
+            <!-- View Customers -->
+            <a asp-controller="Customer" asp-action="Index" class="quick-card">
+                <div class="quick-card-icon blue">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="quick-card-content">
+                    <h4>Customers</h4>
+                    <span>View and manage customers</span>
+                </div>
+                <i class="bi bi-chevron-right arrow-icon"></i>
+            </a>
 
             <!-- Add Customer -->
-            <div class="col-md-6 col-lg-3">
-
-                <a asp-controller="Customer"
-                   asp-action="Add"
-                   class="action-card">
-
-                    <div class="action-icon add-icon">
-                        <i class="bi bi-person-plus-fill"></i>
-                    </div>
-
-                    <div>
-                        <h5>Add Customer</h5>
-
-                        <p>
-                            Create a new customer
-                        </p>
-                    </div>
-
-                    <i class="bi bi-chevron-right action-arrow"></i>
-
-                </a>
-
-            </div>
-
+            <a asp-controller="Customer" asp-action="Add" class="quick-card">
+                <div class="quick-card-icon green">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <div class="quick-card-content">
+                    <h4>Add Customer</h4>
+                    <span>Create a new customer</span>
+                </div>
+                <i class="bi bi-chevron-right arrow-icon"></i>
+            </a>
 
             <!-- Accounts -->
-            <div class="col-md-6 col-lg-3">
-
-                <div class="action-card disabled-action">
-
-                    <div class="action-icon account-small">
-                        <i class="bi bi-bank"></i>
-                    </div>
-
-                    <div>
-                        <h5>Accounts</h5>
-
-                        <p>
-                            Manage bank accounts
-                        </p>
-                    </div>
-
-                    <span class="coming-soon">
-                        Soon
-                    </span>
-
+            <a asp-controller="Account" asp-action="Index" class="quick-card">
+                <div class="quick-card-icon orange">
+                    <i class="bi bi-bank"></i>
                 </div>
-
-            </div>
-
+                <div class="quick-card-content">
+                    <h4>Accounts</h4>
+                    <span>Manage bank accounts</span>
+                </div>
+                <i class="bi bi-chevron-right arrow-icon"></i>
+            </a>
 
             <!-- Transactions -->
-            <div class="col-md-6 col-lg-3">
-
-                <div class="action-card disabled-action">
-
-                    <div class="action-icon transaction-small">
-                        <i class="bi bi-arrow-left-right"></i>
-                    </div>
-
-                    <div>
-                        <h5>Transactions</h5>
-
-                        <p>
-                            View transactions
-                        </p>
-                    </div>
-
-                    <span class="coming-soon">
-                        Soon
-                    </span>
-
+            <div class="quick-card disabled-quick-card">
+                <div class="quick-card-icon purple">
+                    <i class="bi bi-arrow-left-right"></i>
                 </div>
-
+                <div class="quick-card-content">
+                    <h4>Transactions</h4>
+                    <span>View transactions</span>
+                </div>
+                <span class="soon-badge">Soon</span>
             </div>
-
         </div>
-
     </div>
 
 </div>
-
-
-<style>
-
-    /* Page */
-
-    body {
-        background: #f5f7fb;
-    }
-
-
-    /* Header */
-
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: white;
-        padding: 28px 32px;
-        border-radius: 18px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    }
-
-
-        .dashboard-header h1 {
-            color: #172033;
-            font-size: 30px;
-        }
-
-
-    .dashboard-date {
-        background: #f1f4f9;
-        padding: 10px 16px;
-        border-radius: 10px;
-        color: #596579;
-        font-size: 14px;
-    }
-
-
-        .dashboard-date i {
-            margin-right: 6px;
-        }
-
-
-    /* Statistics Cards */
-
-    .stat-card {
-        background: white;
-        border-radius: 16px;
-        padding: 22px;
-        display: flex;
-        align-items: center;
-        gap: 18px;
-        min-height: 145px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-        transition: all 0.25s ease;
-    }
-
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        }
-
-
-    .stat-icon {
-        width: 55px;
-        height: 55px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-    }
-
-
-    .customer-icon {
-        background: #e9f2ff;
-        color: #2878e8;
-    }
-
-
-    .account-icon {
-        background: #eaf9f1;
-        color: #20a765;
-    }
-
-
-    .transaction-icon {
-        background: #fff4e5;
-        color: #f59e0b;
-    }
-
-
-    .payment-icon {
-        background: #f0ebff;
-        color: #7357d9;
-    }
-
-
-    .stat-title {
-        color: #8993a4;
-        margin: 0;
-        font-size: 13px;
-    }
-
-
-    .stat-card h3 {
-        margin: 3px 0 7px;
-        font-size: 20px;
-        color: #20293a;
-    }
-
-
-    .stat-link {
-        color: #2878e8;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-
-        .stat-link i {
-            margin-left: 4px;
-        }
-
-
-    .disabled-link {
-        color: #9aa3b2;
-    }
-
-
-    /* Dashboard Card */
-
-    .dashboard-card {
-        background: white;
-        border-radius: 18px;
-        padding: 26px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-    }
-
-
-    .card-heading {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 22px;
-    }
-
-
-        .card-heading h4 {
-            margin: 0;
-            color: #20293a;
-            font-weight: 700;
-        }
-
-
-        .card-heading p {
-            margin: 4px 0 0;
-            color: #8993a4;
-            font-size: 13px;
-        }
-
-
-    .heading-icon {
-        font-size: 22px;
-        color: #2878e8;
-    }
-
-
-    /* Action Cards */
-
-    .action-card {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding: 18px;
-        border: 1px solid #edf0f5;
-        border-radius: 14px;
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.25s ease;
-        min-height: 90px;
-    }
-
-
-        .action-card:hover {
-            border-color: #cbdcf7;
-            background: #f8fbff;
-            transform: translateY(-2px);
-        }
-
-
-    .action-icon {
-        width: 45px;
-        height: 45px;
-        min-width: 45px;
-        border-radius: 11px;
-        background: #e9f2ff;
-        color: #2878e8;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    }
-
-
-    .add-icon {
-        background: #eaf9f1;
-        color: #20a765;
-    }
-
-
-    .account-small {
-        background: #fff4e5;
-        color: #f59e0b;
-    }
-
-
-    .transaction-small {
-        background: #f0ebff;
-        color: #7357d9;
-    }
-
-
-    .action-card h5 {
-        font-size: 15px;
-        margin: 0 0 4px;
-        color: #263043;
-        font-weight: 600;
-    }
-
-
-    .action-card p {
-        font-size: 12px;
-        color: #929baa;
-        margin: 0;
-    }
-
-
-    .action-arrow {
-        margin-left: auto;
-        color: #aab2bf;
-    }
-
-
-    /* Disabled Cards */
-
-    .disabled-action {
-        cursor: default;
-        opacity: 0.75;
-    }
-
-
-    .coming-soon {
-        margin-left: auto;
-        background: #f1f3f6;
-        color: #8993a4;
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 10px;
-        font-weight: 600;
-    }
-
-
-    /* Mobile */
-
-    @@media (max-width: 768px) {
-
-        .dashboard-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-
-            .dashboard-header h1 {
-                font-size: 24px;
-            }
-
-
-        .dashboard-date {
-            align-self: stretch;
-            text-align: center;
-        }
-    }
-</style>
-

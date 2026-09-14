@@ -70,5 +70,55 @@ namespace BankingManagement.Web.Controllers
             var accounts = await client.GetFromJsonAsync<List<AccountModel>>("api/Account/GetAll");
             return View(accounts);
         }
+
+        //to edit the account
+        //[HttpGet("GetById/{accountId}"
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var account = await client.GetFromJsonAsync<AccountModel>($"api/account/GetById/{id}");
+            if (account == null) {
+                return NotFound();
+            }
+            var editAccount = new EditAccount
+            {
+                AccountId = account.AccountId,
+                Balance = account.Balance,
+                Status = account.Status,
+                AccountNumber = account.AccountNumber.ToString(),
+                CustomerName = account.CustomerName
+            };
+            return View(editAccount);
+
+        }
+        //after getting id update
+        [HttpPost]
+        //[HttpPut("Update/{accountId}")]
+        public async Task<IActionResult> edit (int id, EditAccount account)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.customerId = id;
+                return View(account);
+            }
+            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var response = await client.PutAsJsonAsync($"api/account/Update/{id}", account);
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ModelState.AddModelError("", $"API Error: {response.StatusCode}");
+                ViewBag.customerId = id;
+                return View(account);
+            }
+
+        }
+        
+
     }
+
 }
+
