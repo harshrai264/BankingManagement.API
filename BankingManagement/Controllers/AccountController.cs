@@ -47,7 +47,6 @@ namespace BankingManagement.Controllers
         }
 
 
-        
         [HttpPut("Update/{accountId}")]
         public async Task<IActionResult> UpdateAccount(int accountId, [FromBody] UpdateAccountDto updateAccountDto)
         {

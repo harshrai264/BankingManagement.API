@@ -17,8 +17,8 @@ namespace BankingManagement.Services
         Task<Customer> DeleteCustomerAsync(int customerId);
         Task<CustomerResponseDto> UpdateCustomerAsync(int customerId ,UpdateCustomerDto customerDto);
         Task<List<CustomerResponseDto>> GetAllCustomersAsync();
-
     }
+
     public class CustomerService: ICustomerService
     {
         private readonly AppDbContext _context;

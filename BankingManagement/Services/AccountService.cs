@@ -16,14 +16,16 @@ namespace BankingManagement.Services
         Task<List<AccountResponseDto>> GetAllAccountasync();
         Task <AccountResponseDto> UpdateAccount (int accountId, UpdateAccountDto updateAccountDto);
     }
-    public class AccountService : IAccountService
+    public  class AccountService : IAccountService
     {
 
         private readonly AppDbContext _context;
+        private readonly AuditLogService _audtiLogService;
 
         public AccountService(AppDbContext context)
         {
             _context = context;
+            
 
         }
 
@@ -61,6 +63,7 @@ namespace BankingManagement.Services
                 account.AccountNumber = GenerateAccountNumber();
                 account.CreatedDate = DateTime.UtcNow;
             }
+
             ;
             await _context.Accounts.AddAsync(account);
             await _context.SaveChangesAsync();
@@ -129,6 +132,13 @@ namespace BankingManagement.Services
             {
                 throw new Exception($"Account with ID {accountId} not found.");
             }
+            //// to store old value for audit log
+            //var old = new
+            //{
+            //    account.Balance,
+            //    account.Status,
+            //};
+
             account.Balance = updateAccountDto.Balance;
             account.Status = updateAccountDto.Status;
             await _context.SaveChangesAsync();
