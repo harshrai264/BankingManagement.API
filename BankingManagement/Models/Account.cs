@@ -14,5 +14,8 @@ namespace BankingManagement.Models
 
         // Navigation property to the Customer entity
         public Customer? Customer { get; set; }  // this is used to create one to one relationship between customer and account
+
+        //this connect transction to account
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

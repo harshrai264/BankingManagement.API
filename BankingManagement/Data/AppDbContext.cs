@@ -19,6 +19,7 @@ namespace BankingManagement.Data
             public DbSet<Account> Accounts { get; set; }  // code vs database is written 
             public DbSet<AuditLog> Auditlogs { get; set; }
             public DbSet<AllUser> AllUsers { get; set; } 
+            public DbSet<Transaction> Transactions { get; set; }
 
 
         // below is used becuz when creating migration "No store type was specified for the decimal property 'Balance' on entity type 'Account'.
@@ -36,6 +37,22 @@ namespace BankingManagement.Data
            .HasOne(a => a.Customer)
            .WithOne(c => c.Account)
            .HasForeignKey<Account>(a => a.CustomerId);
+
+            // Transaction decimal precision
+            modelBuilder.Entity<Transaction>()
+                .Property(t => t.Amount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Transaction>()
+                .Property(t => t.BalanceAfterTransaction)
+                .HasPrecision(18, 2);
+
+            // One Account can have many Transactions
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.Account)
+                .WithMany(a => a.Transactions)
+                .HasForeignKey(t => t.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
 

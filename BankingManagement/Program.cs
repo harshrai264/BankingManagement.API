@@ -19,6 +19,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 // to add JWT (Login) authrization 
 builder.Services.AddAuthentication(options =>
@@ -39,6 +40,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// this is for role based authorization
+builder.Services.AddAuthorization();
 
 // Add services to the container.
 
@@ -65,8 +68,10 @@ if (app.Environment.IsDevelopment())
 
 }
 
+// these are middleware
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

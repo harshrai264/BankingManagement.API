@@ -1,5 +1,8 @@
 ﻿using BankingManagement.Web.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
 
 namespace BankingManagement.Web.Controllers
 {
@@ -11,9 +14,27 @@ namespace BankingManagement.Web.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        [HttpGet]
-        public IActionResult Add()
+        // to get the jwt token
+        private async Task<HttpClient> GetAuthenticatedClient()
         {
+            var client = _httpClientFactory.CreateClient("BankingManagement");
+
+            var authResult = await HttpContext.AuthenticateAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            var token = authResult.Properties.GetTokenValue("access_token");
+
+            client.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            return client;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Add()
+        {
+            var client = await GetAuthenticatedClient();
             return View();
         }
 
@@ -25,12 +46,13 @@ namespace BankingManagement.Web.Controllers
                 return View(customer);
             }
 
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
 
             var customers = new List<CreateCustomerModel>
-    {
+      {
         customer
-    };
+
+};
 
             var response = await client.PostAsJsonAsync(
                 "api/Customer/Add",
@@ -55,7 +77,8 @@ namespace BankingManagement.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            //var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
 
             var customers = await client.GetFromJsonAsync<List<CustomerModel>>(
                 "api/Customer/GetAll"
@@ -70,7 +93,8 @@ namespace BankingManagement.Web.Controllers
         public async Task<IActionResult> Edit(int id)
 
         {
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
+
             var customer = await client.GetFromJsonAsync<CustomerModel>($"api/Customer/Get/{id}");
 
             if (customer == null)
@@ -101,7 +125,7 @@ namespace BankingManagement.Web.Controllers
                 ViewBag.customerId = id;
                 return View(customer);
             }
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
 
             var response = await client.PutAsJsonAsync($"api/customer/Update/{id}", customer);
 

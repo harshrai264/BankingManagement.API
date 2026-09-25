@@ -1,0 +1,464 @@
+﻿@model BankingManagement.Web.Models.LoginUser
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    ```
+    <title>Login | Banking Management</title>
+
+    <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: "Segoe UI", Arial, sans-serif;
+            }
+
+            body {
+                min-height: 100vh;
+                background: linear-gradient(135deg, #0f172a, #1e3a8a);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+
+            .login-wrapper {
+                width: 100%;
+                max-width: 1050px;
+                min-height: 600px;
+                background: #ffffff;
+                border-radius: 24px;
+                overflow: hidden;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+            }
+
+            /* LEFT SIDE */
+
+            .login-info {
+                background: linear-gradient(145deg, #1d4ed8, #2563eb);
+                color: white;
+                padding: 60px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+                .login-info::before {
+                    content: "";
+                    position: absolute;
+                    width: 300px;
+                    height: 300px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.08);
+                    top: -100px;
+                    right: -100px;
+                }
+
+                .login-info::after {
+                    content: "";
+                    position: absolute;
+                    width: 220px;
+                    height: 220px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.06);
+                    bottom: -80px;
+                    left: -80px;
+                }
+
+            .brand {
+                position: relative;
+                z-index: 1;
+                font-size: 25px;
+                font-weight: 700;
+                margin-bottom: 70px;
+            }
+
+            .login-info h1 {
+                position: relative;
+                z-index: 1;
+                font-size: 42px;
+                line-height: 1.15;
+                margin-bottom: 20px;
+            }
+
+            .login-info p {
+                position: relative;
+                z-index: 1;
+                font-size: 16px;
+                line-height: 1.7;
+                color: rgba(255, 255, 255, 0.85);
+                max-width: 420px;
+            }
+
+            .security-text {
+                position: relative;
+                z-index: 1;
+                margin-top: 45px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.9);
+            }
+
+            .security-icon {
+                width: 34px;
+                height: 34px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.15);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* RIGHT SIDE */
+
+            .login-form-section {
+                padding: 60px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .form-header {
+                margin-bottom: 35px;
+            }
+
+                .form-header h2 {
+                    font-size: 30px;
+                    color: #111827;
+                    margin-bottom: 8px;
+                }
+
+                .form-header p {
+                    color: #6b7280;
+                    font-size: 15px;
+                }
+
+            .form-group {
+                margin-bottom: 22px;
+            }
+
+                .form-group label {
+                    display: block;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #374151;
+                    margin-bottom: 8px;
+                }
+
+            .input-wrapper {
+                position: relative;
+            }
+
+                .input-wrapper span {
+                    position: absolute;
+                    left: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #9ca3af;
+                    font-size: 17px;
+                }
+
+            .form-control {
+                width: 100%;
+                height: 50px;
+                border: 1px solid #d1d5db;
+                border-radius: 10px;
+                padding: 0 15px 0 45px;
+                font-size: 15px;
+                outline: none;
+                transition: all 0.2s ease;
+            }
+
+                .form-control:focus {
+                    border-color: #2563eb;
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+                }
+
+            .validation-message {
+                color: #dc2626;
+                font-size: 13px;
+                margin-top: 5px;
+                display: block;
+            }
+
+            .login-button {
+                width: 100%;
+                height: 50px;
+                border: none;
+                border-radius: 10px;
+                background: #2563eb;
+                color: white;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                margin-top: 8px;
+            }
+
+                .login-button:hover {
+                    background: #1d4ed8;
+                    transform: translateY(-1px);
+                    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+                }
+
+                .login-button:active {
+                    transform: translateY(0);
+                }
+
+            /* SIGN UP */
+
+            .signup-section {
+                text-align: center;
+                margin-top: 25px;
+                padding-top: 22px;
+                border-top: 1px solid #e5e7eb;
+            }
+
+                .signup-section p {
+                    color: #6b7280;
+                    font-size: 14px;
+                    margin-bottom: 8px;
+                }
+
+            .signup-link {
+                color: #2563eb;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+                .signup-link:hover {
+                    text-decoration: underline;
+                }
+
+            .form-footer {
+                text-align: center;
+                margin-top: 25px;
+                color: #9ca3af;
+                font-size: 13px;
+            }
+
+                .form-footer span {
+                    color: #2563eb;
+                    font-weight: 600;
+                }
+
+            /* RESPONSIVE */
+
+            @@media (max-width: 800px) {
+
+                .login-wrapper {
+                    grid-template-columns: 1fr;
+                    max-width: 500px;
+                }
+
+                .login-info {
+                    display: none;
+                }
+
+                .login-form-section {
+                    padding: 45px 30px;
+                }
+            }
+
+            @@media (max-width: 400px) {
+
+                .login-form-section {
+                    padding: 35px 22px;
+                }
+
+                .form-header h2 {
+                    font-size: 26px;
+                }
+            }
+    </style>
+    ```
+
+</head>
+
+<body>
+
+    ```
+    <div class="login-wrapper">
+
+        <!-- LEFT SIDE -->
+
+        <div class="login-info">
+
+            <div class="brand">
+                Banking Management
+            </div>
+
+            <h1>
+                Welcome<br />
+                Back.
+            </h1>
+
+            <p>
+                Securely manage your banking operations, customers,
+                accounts and transactions from one place.
+            </p>
+
+            <div class="security-text">
+
+                <div class="security-icon">
+                    🔒
+                </div>
+
+                <span>
+                    Secure authentication powered by JWT
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT SIDE -->
+
+        <div class="login-form-section">
+
+            <div class="form-header">
+
+                <h2>Sign in</h2>
+
+                <p>
+                    Enter your credentials to access your account.
+                </p>
+
+            </div>
+
+
+            <form asp-action="Login"
+                  asp-controller="Auth"
+                  method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="validation-message">
+                </div>
+
+
+                <!-- USERNAME -->
+
+                <div class="form-group">
+
+                    <label asp-for="UserName">
+                        Username
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span>👤</span>
+
+                        <input asp-for="UserName"
+                               class="form-control"
+                               placeholder="Enter your username"
+                               autocomplete="username" />
+
+                    </div>
+
+                    <span asp-validation-for="UserName"
+                          class="validation-message">
+                    </span>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label asp-for="Password">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span>🔒</span>
+
+                        <input asp-for="Password"
+                               type="password"
+                               class="form-control"
+                               placeholder="Enter your password"
+                               autocomplete="current-password" />
+
+                    </div>
+
+                    <span asp-validation-for="Password"
+                          class="validation-message">
+                    </span>
+
+                </div>
+
+
+                <!-- LOGIN BUTTON -->
+
+                <button type="submit"
+                        class="login-button">
+
+                    Sign In
+
+                </button>
+
+            </form>
+
+
+            <!-- CREATE ACCOUNT -->
+
+            <div class="signup-section">
+
+                <p>
+                    New to Banking Management?
+                </p>
+
+                <a asp-controller="Auth"
+                   asp-action="CreateUser"
+                   class="signup-link">
+
+                    Create an account →
+
+                </a>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="form-footer">
+
+                Banking Management System
+                <span>•</span>
+                Secure Access
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    @section Scripts {
+
+        <partial name="_ValidationScriptsPartial" />
+
+    }
+    ```
+
+</body>
+</html>

@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using BankingManagement.Services;
 using BankingManagement.Dtos;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BankingManagement.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountController : ControllerBase

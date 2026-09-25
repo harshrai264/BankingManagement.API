@@ -116,7 +116,10 @@ namespace BankingManagement.Controllers
             // if username and pass is correct then generate token
             var token = _jwtTokenService.GenerateToken(user);
 
-            return Ok(token);
+            return Ok(new
+            {
+                AccessToken=token
+            });
         }
     }
 }
