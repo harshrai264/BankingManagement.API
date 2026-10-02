@@ -1,0 +1,1278 @@
+@model BankingManagement.Web.Models.DepositModel
+
+@{
+    ViewData["Title"] = "Deposit Money";
+
+    var accounts = ViewBag.Accounts
+        as List<BankingManagement.Web.Models.AccountSelectionModel>
+        ?? new List<BankingManagement.Web.Models.AccountSelectionModel>();
+}
+
+<div class="deposit-wrapper">
+
+    <!-- Page Header -->
+    <div class="page-header">
+
+        <a asp-controller="Transaction"
+           asp-action="Index"
+           class="back-button">
+            <i class="bi bi-arrow-left"></i>
+            Transactions
+        </a>
+
+        <div class="header-content">
+
+            <div class="header-icon">
+                <i class="bi bi-wallet2"></i>
+            </div>
+
+            <div>
+                <h1>Deposit Money</h1>
+                <p>Add funds securely to a customer account</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Notification Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert-banner success-banner" id="successAlert" role="alert">
+            <div class="banner-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="banner-content">
+                <strong>Deposit Successful!</strong>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+            <button type="button" class="banner-close" onclick="dismissAlert('successAlert')" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-banner error-banner" id="errorAlert" role="alert">
+            <div class="banner-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div class="banner-content">
+                <strong>Deposit Failed</strong>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+            <button type="button" class="banner-close" onclick="dismissAlert('errorAlert')" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    }
+
+    <!-- Main Card -->
+    <div class="deposit-main-card">
+
+        <form asp-controller="Transaction"
+              asp-action="Deposit"
+              method="post"
+              id="depositForm">
+
+            <!-- Hidden selected AccountId -->
+            <input asp-for="AccountId"
+                   type="hidden"
+                   id="AccountId" />
+
+
+            <!-- ACCOUNT SECTION -->
+            <div class="section">
+
+                <div class="section-heading">
+
+                    <div class="section-icon account-color">
+                        <i class="bi bi-person-vcard-fill"></i>
+                    </div>
+
+                    <div>
+                        <h3>Choose Account</h3>
+                        <p>Select the account where you want to deposit money</p>
+                    </div>
+
+                </div>
+
+
+                <!-- Account Selection -->
+                <div id="accountSelectionArea">
+
+                    <!-- Search -->
+                    <div class="search-container">
+
+                        <i class="bi bi-search"></i>
+
+                        <input type="text"
+                               id="accountSearch"
+                               placeholder="Search customer or account number..."
+                               autocomplete="off" />
+
+                    </div>
+
+
+                    <!-- Account Count -->
+                    <div class="account-count">
+
+                        <span>
+                            <i class="bi bi-check-circle-fill"></i>
+                            @accounts.Count active account(s)
+                        </span>
+
+                    </div>
+
+
+                    <!-- Account List -->
+                    <div class="account-list"
+                         id="accountList">
+
+                        @if (accounts.Any())
+                        {
+                            foreach (var account in accounts)
+                            {
+                                <div class="account-card"
+                                     data-id="@account.AccountId"
+                                     data-name="@account.CustomerName"
+                                     data-number="@account.AccountNumber"
+                                     data-balance="@account.Balance">
+
+                                    <div class="customer-avatar">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+
+                                    <div class="account-information">
+
+                                        <div class="customer-name">
+                                            @account.CustomerName
+                                        </div>
+
+                                        <div class="account-number">
+                                            <i class="bi bi-credit-card-2-front"></i>
+                                            @account.AccountNumber
+                                        </div>
+
+                                    </div>
+
+                                    <div class="balance-information">
+
+                                        <span>Available Balance</span>
+
+                                        <strong>
+                                            ₹@account.Balance.ToString("N2")
+                                        </strong>
+
+                                    </div>
+
+                                    <div class="arrow-icon">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </div>
+
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+
+                                <i class="bi bi-wallet2"></i>
+
+                                <h4>No Active Accounts</h4>
+
+                                <p>
+                                    There are no active accounts available for deposit.
+                                </p>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- Selected Account -->
+                <div id="selectedAccountCard"
+                     class="selected-account-card hidden">
+
+                    <div class="selected-top">
+
+                        <div class="selected-label">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Account Selected
+                        </div>
+
+                        <button type="button"
+                                id="changeAccount">
+                            Change Account
+                        </button>
+
+                    </div>
+
+                    <div class="selected-account-content">
+
+                        <div class="selected-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <div class="selected-customer">
+
+                            <h4 id="selectedCustomer"></h4>
+
+                            <span id="selectedNumber"></span>
+
+                        </div>
+
+                        <div class="selected-balance">
+
+                            <span>Current Balance</span>
+
+                            <strong id="selectedBalance"></strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DIVIDER -->
+            <div class="section-divider"></div>
+
+
+            <!-- DEPOSIT DETAILS -->
+            <div class="section">
+
+                <div class="section-heading">
+
+                    <div class="section-icon deposit-color">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+
+                    <div>
+                        <h3>Deposit Details</h3>
+                        <p>Enter the amount and optional transaction description</p>
+                    </div>
+
+                </div>
+
+
+                <div class="deposit-form">
+
+                    <!-- Amount -->
+                    <div class="form-field amount-field">
+
+                        <label>
+                            Deposit Amount
+                            <span>*</span>
+                        </label>
+
+                        <div class="amount-box">
+
+                            <div class="currency">
+                                ₹
+                            </div>
+
+                            <input asp-for="Amount"
+                                   id="Amount"
+                                   type="number"
+                                   min="1"
+                                   step="0.01"
+                                   placeholder="Enter amount" />
+
+                        </div>
+
+                        <span asp-validation-for="Amount"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+
+                    <!-- Description -->
+                    <div class="form-field">
+
+                        <label>
+                            Description
+                        </label>
+
+                        <input asp-for="Description"
+                               id="Description"
+                               class="text-input"
+                               placeholder="e.g. Cash deposit, salary credit..." />
+
+                        <span asp-validation-for="Description"
+                              class="validation-message">
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- API / MODEL ERROR -->
+            <div asp-validation-summary="ModelOnly"
+                 class="form-error">
+            </div>
+
+
+            <!-- FOOTER -->
+            <div class="form-footer">
+
+                <a asp-controller="Transaction"
+                   asp-action="Index"
+                   class="cancel-button">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        id="depositButton"
+                        class="submit-button"
+                        disabled>
+
+                    <i class="bi bi-arrow-down-circle-fill"></i>
+
+                    Submit Deposit
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+
+    body {
+        background: #f5f7fb;
+    }
+
+
+    /* =========================
+           PAGE
+           ========================= */
+
+    .deposit-wrapper {
+        max-width: 1050px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+
+
+    /* =========================
+           HEADER
+           ========================= */
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: .2s;
+    }
+
+        .back-button:hover {
+            color: #2563eb;
+        }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 25px;
+        background: linear-gradient( 135deg, #2563eb, #7c3aed );
+        box-shadow: 0 8px 20px rgba(37, 99, 235, .20);
+    }
+
+    .header-content h1 {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 750;
+        color: #1e293b;
+    }
+
+    .header-content p {
+        margin: 4px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+
+    /* =========================
+           ALERT BANNERS
+           ========================= */
+
+    .alert-banner {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
+        animation: slideDownFade 0.35s ease-out forwards;
+        position: relative;
+    }
+
+    .success-banner {
+        background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+        border: 1px solid #86efac;
+        color: #065f46;
+    }
+
+    .error-banner {
+        background: linear-gradient(135deg, #fef2f2, #fff1f2);
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.12);
+    }
+
+    .banner-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .success-banner .banner-icon {
+        background: #d1fae5;
+        color: #059669;
+    }
+
+    .error-banner .banner-icon {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .banner-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .banner-content strong {
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .banner-content span {
+        font-size: 13.5px;
+        opacity: 0.95;
+    }
+
+    .banner-close {
+        background: transparent;
+        border: none;
+        color: inherit;
+        opacity: 0.6;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: opacity 0.2s, background-color 0.2s;
+    }
+
+    .banner-close:hover {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.06);
+    }
+
+    @@keyframes slideDownFade {
+        from {
+            opacity: 0;
+            transform: translateY(-12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    /* =========================
+           MAIN CARD
+           ========================= */
+
+    .deposit-main-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        box-shadow: 0 10px 35px rgba(15, 23, 42, .07);
+        overflow: hidden;
+    }
+
+
+    .section {
+        padding: 28px 30px;
+    }
+
+
+    /* =========================
+           SECTION HEADING
+           ========================= */
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .section-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+    }
+
+    .account-color {
+        background: #eef4ff;
+        color: #2563eb;
+    }
+
+    .deposit-color {
+        background: #f3edff;
+        color: #7c3aed;
+    }
+
+    .section-heading h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .section-heading p {
+        margin: 3px 0 0;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+
+    /* =========================
+           SEARCH
+           ========================= */
+
+    .search-container {
+        position: relative;
+    }
+
+        .search-container i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 17px;
+        }
+
+        .search-container input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #dbe1ea;
+            border-radius: 11px;
+            padding: 0 15px 0 45px;
+            outline: none;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+            .search-container input:focus {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
+            }
+
+
+    /* =========================
+           COUNT
+           ========================= */
+
+    .account-count {
+        margin: 10px 0;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+        .account-count i {
+            color: #16a34a;
+            margin-right: 5px;
+        }
+
+
+    /* =========================
+           ACCOUNT LIST
+           ========================= */
+
+    .account-list {
+        border: 1px solid #e5e7eb;
+        border-radius: 13px;
+        max-height: 280px;
+        overflow-y: auto;
+        background: #fff;
+    }
+
+
+    .account-card {
+        display: flex;
+        align-items: center;
+        padding: 15px 17px;
+        border-bottom: 1px solid #eef2f7;
+        cursor: pointer;
+        transition: background .2s, transform .15s;
+    }
+
+        .account-card:last-child {
+            border-bottom: none;
+        }
+
+        .account-card:hover {
+            background: #f8faff;
+            transform: translateX(2px);
+        }
+
+
+    .customer-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef4ff;
+        color: #2563eb;
+        margin-right: 13px;
+        flex-shrink: 0;
+    }
+
+
+    .account-information {
+        flex: 1;
+    }
+
+    .customer-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .account-number {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+        .account-number i {
+            margin-right: 4px;
+        }
+
+
+    .balance-information {
+        text-align: right;
+        margin-right: 20px;
+    }
+
+        .balance-information span {
+            display: block;
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .balance-information strong {
+            display: block;
+            margin-top: 2px;
+            color: #16a34a;
+            font-size: 14px;
+        }
+
+
+    .arrow-icon {
+        color: #94a3b8;
+    }
+
+
+    /* =========================
+           EMPTY
+           ========================= */
+
+    .empty-state {
+        text-align: center;
+        padding: 45px 20px;
+        color: #64748b;
+    }
+
+        .empty-state i {
+            font-size: 36px;
+            color: #94a3b8;
+        }
+
+        .empty-state h4 {
+            margin: 10px 0 5px;
+            color: #334155;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 13px;
+        }
+
+
+    /* =========================
+           SELECTED ACCOUNT
+           ========================= */
+
+    .selected-account-card {
+        margin-top: 15px;
+        border-radius: 13px;
+        background: linear-gradient( 135deg, #eff6ff, #f5f3ff );
+        border: 1px solid #c7d2fe;
+        padding: 18px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .selected-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .selected-label {
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .selected-label i {
+            margin-right: 5px;
+        }
+
+    #changeAccount {
+        border: none;
+        background: transparent;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+    .selected-account-content {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .selected-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        color: #2563eb;
+        box-shadow: 0 3px 10px rgba(37, 99, 235, .10);
+    }
+
+    .selected-customer {
+        flex: 1;
+    }
+
+        .selected-customer h4 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .selected-customer span {
+            display: block;
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+    .selected-balance {
+        text-align: right;
+    }
+
+        .selected-balance span {
+            display: block;
+            color: #64748b;
+            font-size: 10px;
+        }
+
+        .selected-balance strong {
+            display: block;
+            margin-top: 3px;
+            color: #16a34a;
+            font-size: 16px;
+        }
+
+
+    /* =========================
+           DIVIDER
+           ========================= */
+
+    .section-divider {
+        height: 1px;
+        background: #eef2f7;
+    }
+
+
+    /* =========================
+           FORM
+           ========================= */
+
+    .deposit-form {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 20px;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+        .form-field label span {
+            color: #dc2626;
+        }
+
+
+    .amount-box {
+        height: 48px;
+        display: flex;
+        align-items: center;
+        border: 1px solid #dbe1ea;
+        border-radius: 11px;
+        overflow: hidden;
+        transition: .2s;
+    }
+
+        .amount-box:focus-within {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
+        }
+
+    .currency {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding: 0 15px;
+        background: #f8fafc;
+        border-right: 1px solid #e5e7eb;
+        color: #64748b;
+        font-weight: 700;
+    }
+
+    .amount-box input {
+        flex: 1;
+        height: 100%;
+        border: none;
+        outline: none;
+        padding: 0 14px;
+        font-size: 14px;
+    }
+
+
+    .text-input {
+        width: 100%;
+        height: 48px;
+        border: 1px solid #dbe1ea;
+        border-radius: 11px;
+        padding: 0 14px;
+        outline: none;
+        font-size: 14px;
+        transition: .2s;
+    }
+
+        .text-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
+        }
+
+
+    /* =========================
+           VALIDATION
+           ========================= */
+
+    .validation-message {
+        display: block;
+        margin-top: 5px;
+        color: #dc2626;
+        font-size: 12px;
+    }
+
+    .form-error {
+        margin: 0 30px 15px;
+        color: #dc2626;
+        font-size: 13px;
+    }
+
+
+    /* =========================
+           FOOTER
+           ========================= */
+
+    .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 20px 30px;
+        background: #fafbfe;
+        border-top: 1px solid #eef2f7;
+    }
+
+    .cancel-button,
+    .submit-button {
+        height: 44px;
+        padding: 0 20px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .cancel-button {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+        .cancel-button:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+    .submit-button {
+        border: none;
+        color: white;
+        background: linear-gradient( 135deg, #2563eb, #4f46e5 );
+        box-shadow: 0 5px 15px rgba(37, 99, 235, .18);
+    }
+
+        .submit-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 7px 18px rgba(37, 99, 235, .25);
+        }
+
+        .submit-button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+
+    /* =========================
+           MOBILE
+           ========================= */
+
+    @@media (max-width: 768px) {
+
+        .deposit-wrapper {
+            padding: 0 12px;
+            margin-top: 20px;
+        }
+
+        .section {
+            padding: 22px 18px;
+        }
+
+        .deposit-form {
+            grid-template-columns: 1fr;
+        }
+
+        .balance-information {
+            display: none;
+        }
+
+        .selected-account-content {
+            flex-wrap: wrap;
+        }
+
+        .selected-balance {
+            width: 100%;
+            margin-left: 58px;
+            text-align: left;
+        }
+
+        .form-footer {
+            padding: 18px;
+            flex-direction: column-reverse;
+        }
+
+        .cancel-button,
+        .submit-button {
+            width: 100%;
+        }
+
+        .form-error {
+            margin: 0 18px 15px;
+        }
+    }
+
+</style>
+
+
+<script>
+
+    const searchInput =
+        document.getElementById("accountSearch");
+
+    const accountCards =
+        document.querySelectorAll(".account-card");
+
+    const accountSelectionArea =
+        document.getElementById("accountSelectionArea");
+
+    const selectedAccountCard =
+        document.getElementById("selectedAccountCard");
+
+    const selectedCustomer =
+        document.getElementById("selectedCustomer");
+
+    const selectedNumber =
+        document.getElementById("selectedNumber");
+
+    const selectedBalance =
+        document.getElementById("selectedBalance");
+
+    const accountIdInput =
+        document.getElementById("AccountId");
+
+    const amountInput =
+        document.getElementById("Amount");
+
+    const depositButton =
+        document.getElementById("depositButton");
+
+    const changeAccountButton =
+        document.getElementById("changeAccount");
+
+
+    let accountSelected = false;
+
+
+    /* =========================
+       SEARCH
+       ========================= */
+
+    searchInput.addEventListener("input", function () {
+
+        const value =
+            this.value.toLowerCase().trim();
+
+        accountCards.forEach(function (card) {
+
+            const customer =
+                (card.dataset.name || "").toLowerCase();
+
+            const accountNumber =
+                (card.dataset.number || "").toLowerCase();
+
+            if (
+                customer.includes(value) ||
+                accountNumber.includes(value)
+            ) {
+                card.style.display = "flex";
+            }
+            else {
+                card.style.display = "none";
+            }
+
+        });
+
+    });
+
+
+    /* =========================
+       SELECT ACCOUNT
+       ========================= */
+
+    accountCards.forEach(function (card) {
+
+        card.addEventListener("click", function () {
+
+            const accountId =
+                card.dataset.id;
+
+            const customer =
+                card.dataset.name;
+
+            const accountNumber =
+                card.dataset.number;
+
+            const balance =
+                Number(card.dataset.balance);
+
+
+            // Store selected AccountId
+
+            accountIdInput.value =
+                accountId;
+
+
+            // Display selected account
+
+            selectedCustomer.textContent =
+                customer;
+
+            selectedNumber.textContent =
+                "Account: " + accountNumber;
+
+            selectedBalance.textContent =
+                "₹" + balance.toLocaleString(
+                    "en-IN",
+                    {
+                        minimumFractionDigits: 2
+                    }
+                );
+
+
+            // Hide account selection
+
+            accountSelectionArea.classList.add("hidden");
+
+
+            // Show selected account
+
+            selectedAccountCard.classList.remove("hidden");
+
+
+            accountSelected = true;
+
+
+            validateForm();
+
+        });
+
+    });
+
+
+    /* =========================
+       CHANGE ACCOUNT
+       ========================= */
+
+    changeAccountButton.addEventListener(
+        "click",
+        function () {
+
+            accountSelectionArea.classList.remove("hidden");
+
+            selectedAccountCard.classList.add("hidden");
+
+            accountIdInput.value = "";
+
+            accountSelected = false;
+
+            validateForm();
+
+            searchInput.focus();
+
+        }
+    );
+
+
+    /* =========================
+       VALIDATE FORM
+       ========================= */
+
+    amountInput.addEventListener(
+        "input",
+        validateForm
+    );
+
+
+    function validateForm() {
+
+        const amount =
+            Number(amountInput.value);
+
+        if (
+            accountSelected &&
+            amount > 0
+        ) {
+            depositButton.disabled = false;
+        }
+        else {
+            depositButton.disabled = true;
+        }
+
+    }
+
+
+    /* =========================
+       DISMISS ALERT
+       ========================= */
+
+    function dismissAlert(alertId) {
+        const el = document.getElementById(alertId);
+        if (el) {
+            el.style.transition = "all 0.3s ease";
+            el.style.opacity = "0";
+            el.style.transform = "translateY(-10px)";
+            setTimeout(function () {
+                el.remove();
+            }, 300);
+        }
+    }
+
+    // Auto-dismiss success alert after 6 seconds
+    const successAlert = document.getElementById("successAlert");
+    if (successAlert) {
+        setTimeout(function () {
+            dismissAlert("successAlert");
+        }, 6000);
+    }
+
+</script>

@@ -1,0 +1,494 @@
+﻿@{
+    ViewData["Title"] = "Transactions";
+}
+
+<style>
+    body {
+        background: #f5f7fb;
+    }
+
+    .transaction-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 20px 40px;
+    }
+
+    /* Header */
+    .page-header {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        color: white;
+        border-radius: 18px;
+        padding: 22px 28px;
+        margin-bottom: 26px;
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.14);
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+    }
+
+    .header-text h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .header-text p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        opacity: 0.88;
+    }
+
+    .dashboard-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: white;
+        color: #2563eb;
+        text-decoration: none;
+        padding: 9px 15px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+    .dashboard-btn:hover {
+        color: #1d4ed8;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Section */
+    .section-heading {
+        margin-bottom: 16px;
+    }
+
+    .section-heading h2 {
+        margin: 0;
+        color: #111827;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .section-heading p {
+        margin: 4px 0 0;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    /* Cards */
+    .transaction-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 17px;
+    }
+
+    .transaction-card {
+        background: white;
+        border-radius: 15px;
+        padding: 19px 21px;
+        min-height: 185px;
+        border: 1px solid #e9edf5;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.045);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .transaction-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 11px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    .transaction-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 3px;
+    }
+
+    .deposit-card::before {
+        background: #2563eb;
+    }
+
+    .withdraw-card::before {
+        background: #f59e0b;
+    }
+
+    .transfer-card::before {
+        background: #7c3aed;
+    }
+
+    .history-card::before {
+        background: #0891b2;
+    }
+
+    .card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 13px;
+    }
+
+    .transaction-icon {
+        width: 43px;
+        height: 43px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .deposit-icon {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .withdraw-icon {
+        background: #fff7ed;
+        color: #f59e0b;
+    }
+
+    .transfer-icon {
+        background: #f5f3ff;
+        color: #7c3aed;
+    }
+
+    .history-icon {
+        background: #ecfeff;
+        color: #0891b2;
+    }
+
+    .card-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: #9ca3af;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .transaction-card h3 {
+        margin: 0 0 6px;
+        font-size: 17px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .transaction-card p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 12.5px;
+        line-height: 1.5;
+        max-width: 500px;
+    }
+
+    .transaction-btn {
+        margin-top: auto;
+        padding-top: 14px;
+    }
+
+    .transaction-btn a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 8px 13px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 12.5px;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+    .deposit-btn {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .deposit-btn:hover {
+        background: #2563eb;
+        color: white;
+    }
+
+    .withdraw-btn {
+        background: #fff7ed;
+        color: #ea8a00;
+    }
+
+    .withdraw-btn:hover {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .transfer-btn {
+        background: #f5f3ff;
+        color: #7c3aed;
+    }
+
+    .transfer-btn:hover {
+        background: #7c3aed;
+        color: white;
+    }
+
+    .history-btn {
+        background: #ecfeff;
+        color: #0891b2;
+    }
+
+    .history-btn:hover {
+        background: #0891b2;
+        color: white;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+
+        .transaction-container {
+            padding: 20px 15px 30px;
+        }
+
+        .header-content {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .dashboard-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .transaction-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+<div class="transaction-container">
+
+    <!-- Header -->
+    <div class="page-header">
+
+        <div class="header-content">
+
+            <div class="header-left">
+
+                <div class="header-icon">
+                    <i class="bi bi-arrow-left-right"></i>
+                </div>
+
+                <div class="header-text">
+                    <h1>Transactions</h1>
+                    <p>Manage your banking transaction operations</p>
+                </div>
+
+            </div>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="dashboard-btn">
+
+                <i class="bi bi-arrow-left"></i>
+                Back to Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Section -->
+    <div class="section-heading">
+
+        <h2>Banking Transactions</h2>
+
+        <p>Select an operation to continue</p>
+
+    </div>
+
+
+    <!-- Transaction Cards -->
+    <div class="transaction-grid">
+
+
+        <!-- Deposit -->
+        <div class="transaction-card deposit-card">
+
+            <div class="card-top">
+
+                <div class="transaction-icon deposit-icon">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+
+                <span class="card-label">
+                    Credit
+                </span>
+
+            </div>
+
+            <h3>Deposit</h3>
+
+            <p>
+                Add funds to a customer account and update
+                the available account balance.
+            </p>
+
+            <div class="transaction-btn">
+
+                <a asp-controller="Transaction"
+                   asp-action="Deposit"
+                   class="deposit-btn">
+
+                    Make Deposit
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Withdraw -->
+        <div class="transaction-card withdraw-card">
+
+            <div class="card-top">
+
+                <div class="transaction-icon withdraw-icon">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+
+                <span class="card-label">
+                    Debit
+                </span>
+
+            </div>
+
+            <h3>Withdraw</h3>
+
+            <p>
+                Withdraw funds from an account while
+                validating the available balance.
+            </p>
+
+            <div class="transaction-btn">
+
+                <a asp-controller="Transaction"
+                   asp-action="Withdraw"
+                   class="withdraw-btn">
+
+                    Make Withdrawal
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Transfer -->
+        <div class="transaction-card transfer-card">
+
+            <div class="card-top">
+
+                <div class="transaction-icon transfer-icon">
+                    <i class="bi bi-arrow-left-right"></i>
+                </div>
+
+                <span class="card-label">
+                    Transfer
+                </span>
+
+            </div>
+
+            <h3>Transfer</h3>
+
+            <p>
+                Transfer funds securely from one account
+                to another account.
+            </p>
+
+            <div class="transaction-btn">
+
+                <a asp-controller="Transaction"
+                   asp-action="Transfer"
+                   class="transfer-btn">
+
+                    Make Transfer
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- History -->
+        <div class="transaction-card history-card">
+
+            <div class="card-top">
+
+                <div class="transaction-icon history-icon">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <span class="card-label">
+                    Records
+                </span>
+
+            </div>
+
+            <h3>Transaction History</h3>
+
+            <p>
+                View transaction records by entering
+                the account number.
+            </p>
+
+            <div class="transaction-btn">
+
+                <a asp-controller="Transaction"
+                   asp-action="History"
+                   class="history-btn">
+
+                    View History
+                    <i class="bi bi-arrow-right"></i>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

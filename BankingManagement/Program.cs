@@ -2,6 +2,7 @@ using BankingManagement.Data;
 using BankingManagement.Services;
 using Google.Api.Ads.AdWords.Util.BatchJob;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -20,6 +21,7 @@ builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IAssistantService, AssistantService>();
 
 // to add JWT (Login) authrization 
 builder.Services.AddAuthentication(options =>
@@ -37,6 +39,32 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+
+// to show proper validation if JSON input is incorrect in respose body
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.AllowInputFormatterExceptionMessages = false;
+    });
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(x => x.Value?.Errors.Count > 0)
+            .SelectMany(x => x.Value!.Errors)
+            .Select(x => x.ErrorMessage)
+            .ToList();
+
+        return new BadRequestObjectResult(new
+        {
+            message = "Invalid request data.",
+            errors = errors
+        });
     };
 });
 

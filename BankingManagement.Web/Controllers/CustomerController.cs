@@ -146,7 +146,7 @@ namespace BankingManagement.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
             var response = await client.DeleteAsync($"api/customer/Delete/{id}");
 
             if (response.IsSuccessStatusCode)

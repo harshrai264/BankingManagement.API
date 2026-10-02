@@ -1,0 +1,998 @@
+@model BankingManagement.Web.Models.TransactionHistoryViewModel
+
+@{
+    ViewData["Title"] = "Transaction History";
+    var selectedAcc = Model.SelectedAccount;
+    var transactions = Model.Transactions ?? new List<BankingManagement.Web.Models.TransactionHistoryModel>();
+}
+
+<div class="history-wrapper">
+
+    <!-- Page Header -->
+    <div class="page-header">
+
+        <a asp-controller="Transaction"
+           asp-action="Index"
+           class="back-button">
+            <i class="bi bi-arrow-left"></i>
+            Transactions
+        </a>
+
+        <div class="header-content">
+
+            <div class="header-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div>
+                <h1>Transaction History</h1>
+                <p>Track, filter, and review all credit and debit records for customer accounts</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Notification Alerts -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-banner error-banner" id="errorAlert" role="alert">
+            <div class="banner-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div class="banner-content">
+                <strong>Notice</strong>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+            <button type="button" class="banner-close" onclick="dismissAlert('errorAlert')" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    }
+
+    <!-- ACCOUNT SELECTOR CARD -->
+    <div class="selector-card">
+
+        <form asp-controller="Transaction"
+              asp-action="History"
+              method="get"
+              id="historyForm"
+              class="selector-form">
+
+            <div class="selector-label">
+                <i class="bi bi-person-vcard-fill"></i>
+                <span>Select Account:</span>
+            </div>
+
+            <div class="selector-dropdown-wrapper">
+                <select name="accountId"
+                        id="accountSelect"
+                        class="account-dropdown"
+                        onchange="this.form.submit()">
+                    <option value="">-- Choose an active account to view records --</option>
+                    @foreach (var acc in Model.Accounts)
+                    {
+                        if (Model.SelectedAccountId == acc.AccountId)
+                        {
+                            <option value="@acc.AccountId" selected>
+                                @acc.CustomerName — @acc.AccountNumber (Balance: ₹@acc.Balance.ToString("N2"))
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@acc.AccountId">
+                                @acc.CustomerName — @acc.AccountNumber (Balance: ₹@acc.Balance.ToString("N2"))
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="view-btn">
+                <i class="bi bi-search"></i>
+                View Records
+            </button>
+
+        </form>
+
+    </div>
+
+
+    @if (selectedAcc != null)
+    {
+        <!-- ACCOUNT SUMMARY STATS -->
+        <div class="stats-overview">
+
+            <div class="stat-box primary-box">
+                <div class="stat-box-icon">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <div>
+                    <span class="stat-box-label">Account Holder</span>
+                    <strong class="stat-box-value">@selectedAcc.CustomerName</strong>
+                    <span class="stat-box-sub">Acct: @selectedAcc.AccountNumber</span>
+                </div>
+            </div>
+
+            <div class="stat-box balance-box">
+                <div class="stat-box-icon">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+                <div>
+                    <span class="stat-box-label">Available Balance</span>
+                    <strong class="stat-box-value">₹@selectedAcc.Balance.ToString("N2")</strong>
+                    <span class="stat-box-sub badge-active"><i class="bi bi-check-circle-fill"></i> Active</span>
+                </div>
+            </div>
+
+            <div class="stat-box count-box">
+                <div class="stat-box-icon">
+                    <i class="bi bi-arrow-left-right"></i>
+                </div>
+                <div>
+                    <span class="stat-box-label">Total Transactions</span>
+                    <strong class="stat-box-value" id="txCountBadge">@transactions.Count</strong>
+                    <span class="stat-box-sub">Recorded entries</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MAIN TABLE CARD -->
+        <div class="table-card">
+
+            <!-- Card Header: Filters & Search -->
+            <div class="table-card-header">
+
+                <div class="filter-tabs">
+                    <button type="button" class="tab-btn active" data-filter="all">
+                        All (@transactions.Count)
+                    </button>
+                    <button type="button" class="tab-btn" data-filter="Deposit">
+                        Deposits
+                    </button>
+                    <button type="button" class="tab-btn" data-filter="Withdraw">
+                        Withdrawals
+                    </button>
+                    <button type="button" class="tab-btn" data-filter="Transfer">
+                        Transfers
+                    </button>
+                </div>
+
+                <div class="table-search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text"
+                           id="tableSearch"
+                           placeholder="Filter by description or amount..."
+                           autocomplete="off" />
+                </div>
+
+            </div>
+
+            <!-- Transactions Table -->
+            @if (transactions.Any())
+            {
+                <div class="table-responsive">
+
+                    <table class="transaction-table" id="transactionTable">
+
+                        <thead>
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-end">Balance After</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var t in transactions)
+                            {
+                                var type = t.TransactionType ?? "Transaction";
+                                var isDeposit = type.Equals("Deposit", StringComparison.OrdinalIgnoreCase);
+                                var isWithdraw = type.Equals("Withdraw", StringComparison.OrdinalIgnoreCase);
+
+                                <tr class="tx-row" data-type="@type">
+
+                                    <td class="tx-id">
+                                        #@t.TransactionId
+                                    </td>
+
+                                    <td class="tx-date">
+                                        <div class="date-main">
+                                            @t.TransactionDate.ToString("dd MMM yyyy")
+                                        </div>
+                                        <div class="date-sub">
+                                            @t.TransactionDate.ToString("hh:mm tt")
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @if (isDeposit)
+                                        {
+                                            <span class="type-badge badge-deposit">
+                                                <i class="bi bi-arrow-down-left"></i>
+                                                Deposit
+                                            </span>
+                                        }
+                                        else if (isWithdraw)
+                                        {
+                                            <span class="type-badge badge-withdraw">
+                                                <i class="bi bi-arrow-up-right"></i>
+                                                Withdraw
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="type-badge badge-transfer">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                                Transfer
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="tx-desc">
+                                        @if (!string.IsNullOrWhiteSpace(t.Description))
+                                        {
+                                            @t.Description
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted fst-italic">Standard @type</span>
+                                        }
+                                    </td>
+
+                                    <td class="text-end tx-amount">
+                                        @if (isDeposit)
+                                        {
+                                            <span class="amount-green">
+                                                +₹@t.Amount.ToString("N2")
+                                            </span>
+                                        }
+                                        else if (isWithdraw)
+                                        {
+                                            <span class="amount-red">
+                                                -₹@t.Amount.ToString("N2")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="amount-purple">
+                                                ₹@t.Amount.ToString("N2")
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-end tx-balance">
+                                        <strong>₹@t.BalanceAfterTransaction.ToString("N2")</strong>
+                                    </td>
+
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                    <div id="noMatchMessage" class="empty-state hidden">
+                        <i class="bi bi-funnel"></i>
+                        <h4>No Matching Records</h4>
+                        <p>No transactions match the selected filter or search keyword.</p>
+                    </div>
+
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <i class="bi bi-journal-x"></i>
+                    <h4>No Transactions Found</h4>
+                    <p>There are no recorded transactions for this account yet.</p>
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <!-- INITIAL EMPTY STATE (NO ACCOUNT SELECTED) -->
+        <div class="initial-card">
+            <div class="initial-icon">
+                <i class="bi bi-search"></i>
+            </div>
+            <h3>Select an Account</h3>
+            <p>Please choose an account from the dropdown above to view its transaction history ledger.</p>
+        </div>
+    }
+
+</div>
+
+
+<style>
+
+    body {
+        background: #f5f7fb;
+    }
+
+    /* =========================
+           PAGE
+           ========================= */
+
+    .history-wrapper {
+        max-width: 1150px;
+        margin: 30px auto;
+        padding: 0 20px 40px;
+    }
+
+    /* =========================
+           HEADER
+           ========================= */
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: .2s;
+    }
+
+        .back-button:hover {
+            color: #0891b2;
+        }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 25px;
+        background: linear-gradient(135deg, #0891b2, #0284c7);
+        box-shadow: 0 8px 20px rgba(8, 145, 178, .25);
+    }
+
+    .header-content h1 {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 750;
+        color: #1e293b;
+    }
+
+    .header-content p {
+        margin: 4px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    /* =========================
+           ALERT BANNERS
+           ========================= */
+
+    .alert-banner {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 20px;
+        border-radius: 14px;
+        margin-bottom: 24px;
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.12);
+        animation: slideDownFade 0.35s ease-out forwards;
+        position: relative;
+    }
+
+    .error-banner {
+        background: linear-gradient(135deg, #fef2f2, #fff1f2);
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+
+    .banner-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .banner-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .banner-content strong {
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .banner-content span {
+        font-size: 13.5px;
+        opacity: 0.95;
+    }
+
+    .banner-close {
+        background: transparent;
+        border: none;
+        color: inherit;
+        opacity: 0.6;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: opacity 0.2s;
+    }
+
+    /* =========================
+           SELECTOR CARD
+           ========================= */
+
+    .selector-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .selector-form {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .selector-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+        white-space: nowrap;
+    }
+
+        .selector-label i {
+            color: #0891b2;
+            font-size: 17px;
+        }
+
+    .selector-dropdown-wrapper {
+        flex: 1;
+        min-width: 260px;
+    }
+
+    .account-dropdown {
+        width: 100%;
+        height: 46px;
+        border: 1px solid #dbe1ea;
+        border-radius: 11px;
+        padding: 0 16px;
+        font-size: 14px;
+        color: #1e293b;
+        outline: none;
+        background-color: #fafbfe;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .account-dropdown:focus {
+            border-color: #0891b2;
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+            background-color: white;
+        }
+
+    .view-btn {
+        height: 46px;
+        padding: 0 20px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(135deg, #0891b2, #0284c7);
+        color: white;
+        font-size: 13.5px;
+        font-weight: 650;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: .2s;
+        box-shadow: 0 4px 12px rgba(8, 145, 178, 0.22);
+    }
+
+        .view-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(8, 145, 178, 0.28);
+        }
+
+    /* =========================
+           STATS OVERVIEW
+           ========================= */
+
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .stat-box {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .stat-box-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .primary-box .stat-box-icon {
+        background: #eef4ff;
+        color: #2563eb;
+    }
+
+    .balance-box .stat-box-icon {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .count-box .stat-box-icon {
+        background: #ecfeff;
+        color: #0891b2;
+    }
+
+    .stat-box-label {
+        display: block;
+        font-size: 11.5px;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .stat-box-value {
+        display: block;
+        font-size: 18px;
+        font-weight: 750;
+        color: #1e293b;
+        margin: 2px 0;
+    }
+
+    .stat-box-sub {
+        display: block;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .badge-active {
+        color: #059669 !important;
+        font-weight: 600;
+    }
+
+    /* =========================
+           TABLE CARD
+           ========================= */
+
+    .table-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        box-shadow: 0 10px 35px rgba(15, 23, 42, .07);
+        overflow: hidden;
+    }
+
+    .table-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 20px 24px;
+        border-bottom: 1px solid #eef2f7;
+        flex-wrap: wrap;
+    }
+
+    .filter-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        border: none;
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 12.5px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+        .tab-btn:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .tab-btn.active {
+            background: #0891b2;
+            color: white;
+            box-shadow: 0 3px 10px rgba(8, 145, 178, 0.2);
+        }
+
+    .table-search-box {
+        position: relative;
+        width: 280px;
+    }
+
+        .table-search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .table-search-box input {
+            width: 100%;
+            height: 38px;
+            border: 1px solid #dbe1ea;
+            border-radius: 9px;
+            padding: 0 14px 0 38px;
+            font-size: 13px;
+            outline: none;
+            transition: .2s;
+        }
+
+            .table-search-box input:focus {
+                border-color: #0891b2;
+                box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+            }
+
+    /* =========================
+           TABLE
+           ========================= */
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .transaction-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+        .transaction-table th {
+            background: #fafbfe;
+            padding: 14px 20px;
+            font-weight: 700;
+            color: #475569;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #eef2f7;
+            white-space: nowrap;
+        }
+
+        .transaction-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .transaction-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .transaction-table tr:hover td {
+            background: #f8fafc;
+        }
+
+    .tx-id {
+        font-weight: 700;
+        color: #64748b;
+        font-size: 12.5px;
+    }
+
+    .date-main {
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .date-sub {
+        font-size: 11.5px;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+
+    .type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .badge-deposit {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .badge-withdraw {
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .badge-transfer {
+        background: #f5f3ff;
+        color: #7c3aed;
+    }
+
+    .tx-desc {
+        color: #334155;
+        max-width: 250px;
+    }
+
+    .amount-green {
+        color: #059669;
+        font-weight: 750;
+        font-size: 14px;
+    }
+
+    .amount-red {
+        color: #dc2626;
+        font-weight: 750;
+        font-size: 14px;
+    }
+
+    .amount-purple {
+        color: #7c3aed;
+        font-weight: 750;
+        font-size: 14px;
+    }
+
+    .tx-balance strong {
+        color: #1e293b;
+        font-size: 14px;
+    }
+
+    /* =========================
+           EMPTY STATES
+           ========================= */
+
+    .empty-state {
+        text-align: center;
+        padding: 45px 20px;
+        color: #64748b;
+    }
+
+        .empty-state i {
+            font-size: 38px;
+            color: #94a3b8;
+        }
+
+        .empty-state h4 {
+            margin: 10px 0 5px;
+            color: #334155;
+            font-size: 16px;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 13px;
+        }
+
+    .initial-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 60px 24px;
+        text-align: center;
+        box-shadow: 0 10px 35px rgba(15, 23, 42, .05);
+    }
+
+    .initial-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 20px;
+        background: #ecfeff;
+        color: #0891b2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin: 0 auto 16px;
+    }
+
+    .initial-card h3 {
+        margin: 0 0 6px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .initial-card p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    @@keyframes slideDownFade {
+        from {
+            opacity: 0;
+            transform: translateY(-12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* =========================
+           MOBILE
+           ========================= */
+
+    @@media (max-width: 768px) {
+        .history-wrapper {
+            padding: 0 12px;
+            margin-top: 20px;
+        }
+
+        .stats-overview {
+            grid-template-columns: 1fr;
+        }
+
+        .table-card-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .table-search-box {
+            width: 100%;
+        }
+
+        .selector-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .view-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+</style>
+
+
+<script>
+
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tableRows = document.querySelectorAll(".tx-row");
+    const searchInput = document.getElementById("tableSearch");
+    const noMatchMessage = document.getElementById("noMatchMessage");
+    const txCountBadge = document.getElementById("txCountBadge");
+
+    let currentFilter = "all";
+
+    /* =========================
+       FILTER TABS
+       ========================= */
+
+    tabButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            tabButtons.forEach(b => b.classList.remove("active"));
+            this.classList.add("active");
+            currentFilter = this.dataset.filter;
+            applyFilters();
+        });
+    });
+
+    /* =========================
+       SEARCH FILTER
+       ========================= */
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            applyFilters();
+        });
+    }
+
+    function applyFilters() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+        let visibleCount = 0;
+
+        tableRows.forEach(function (row) {
+            const rowType = row.dataset.type || "";
+            const rowText = row.textContent.toLowerCase();
+
+            // Check tab filter
+            let matchesTab = false;
+            if (currentFilter === "all") {
+                matchesTab = true;
+            } else if (currentFilter === "Deposit" && rowType.toLowerCase() === "deposit") {
+                matchesTab = true;
+            } else if (currentFilter === "Withdraw" && rowType.toLowerCase() === "withdraw") {
+                matchesTab = true;
+            } else if (currentFilter === "Transfer" && rowType.toLowerCase() === "transfer") {
+                matchesTab = true;
+            }
+
+            // Check search query
+            const matchesSearch = query === "" || rowText.includes(query);
+
+            if (matchesTab && matchesSearch) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        if (noMatchMessage) {
+            if (visibleCount === 0 && tableRows.length > 0) {
+                noMatchMessage.classList.remove("hidden");
+            } else {
+                noMatchMessage.classList.add("hidden");
+            }
+        }
+    }
+
+    function dismissAlert(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.transition = "all 0.3s ease";
+            el.style.opacity = "0";
+            el.style.transform = "translateY(-10px)";
+            setTimeout(function () {
+                el.remove();
+            }, 300);
+        }
+    }
+
+</script>

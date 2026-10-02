@@ -1,5 +1,8 @@
-﻿using BankingManagement.Web.Models;
+using BankingManagement.Web.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
 
 namespace BankingManagement.Web.Controllers
 {
@@ -11,10 +14,29 @@ namespace BankingManagement.Web.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+        private async Task<HttpClient> GetAuthenticatedClient()
+        {
+            var client = _httpClientFactory.CreateClient("BankingManagement");
+
+            var authResult = await HttpContext.AuthenticateAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            var token = authResult?.Properties?.GetTokenValue("access_token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            return client;
+        }
+
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
             var customers = await client.GetFromJsonAsync<List<CustomerModel>>("api/Customer/GetAll");
             var accounts = await client.GetFromJsonAsync<List<AccountModel>>(
        "api/Account/GetAll");
@@ -39,24 +61,24 @@ namespace BankingManagement.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(CreateAccountModel account)
         {
+            var client = await GetAuthenticatedClient();
+
             if (!ModelState.IsValid)
             {
-                var client = _httpClientFactory.CreateClient("BankingManagement");
                 var customers = await client.GetFromJsonAsync<List<CustomerModel>>("api/Customer/GetAll");
                 ViewBag.Customers = customers;
                 return View(account);
             }
-            var apiClient = _httpClientFactory.CreateClient("BankingManagement");
-            var response = await apiClient.PostAsJsonAsync("api/Account/Add", account);
+
+            var response = await client.PostAsJsonAsync("api/Account/Add", account);
 
             if (response.IsSuccessStatusCode) {
                 return RedirectToAction("Index");
             }
-            ModelState.AddModelError("", $"API Error:{response.StatusCode}");
+            ModelState.AddModelError("", $"API Error: {response.StatusCode}");
 
             //reload if api returns an error
-
-            var customerlist = await apiClient.GetFromJsonAsync<List<CustomerModel>>("api/Customer/GetAll");
+            var customerlist = await client.GetFromJsonAsync<List<CustomerModel>>("api/Customer/GetAll");
             ViewBag.Customers = customerlist;
             return View(account);
         }
@@ -66,7 +88,7 @@ namespace BankingManagement.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
             var accounts = await client.GetFromJsonAsync<List<AccountModel>>("api/Account/GetAll");
             return View(accounts);
         }
@@ -76,7 +98,7 @@ namespace BankingManagement.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
             var account = await client.GetFromJsonAsync<AccountModel>($"api/account/GetById/{id}");
             if (account == null) {
                 return NotFound();
@@ -102,7 +124,7 @@ namespace BankingManagement.Web.Controllers
                 ViewBag.customerId = id;
                 return View(account);
             }
-            var client = _httpClientFactory.CreateClient("BankingManagement");
+            var client = await GetAuthenticatedClient();
             var response = await client.PutAsJsonAsync($"api/account/Update/{id}", account);
             if (response.IsSuccessStatusCode)
             {

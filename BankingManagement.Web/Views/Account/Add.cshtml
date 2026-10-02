@@ -1,154 +1,435 @@
-﻿@model BankingManagement.Web.Models.CreateAccountModel;
-
+@model BankingManagement.Web.Models.CreateAccountModel;
 
 @{
     ViewData["Title"] = "Create Account";
 }
 
-<div class="container mt-4">
+<div class="account-form-wrapper">
 
-    <div class="row justify-content-center">
+    <!-- Page Header -->
+    <div class="page-header">
 
-        <div class="col-md-7 col-lg-6">
+        <a asp-action="Index" class="back-button">
+            <i class="bi bi-arrow-left"></i>
+            Back to Accounts
+        </a>
 
-            <div class="card shadow-sm border-0">
+        <div class="header-content">
 
-                <div class="card-header bg-white border-0 pt-4 px-4">
-                    <h3 class="fw-bold mb-1">
-                        Create Account
-                    </h3>
+            <div class="header-icon">
+                <i class="bi bi-wallet-plus"></i>
+            </div>
 
-                    <p class="text-muted mb-0">
-                        Create a new bank account for a customer.
-                    </p>
-                </div>
-
-
-                <div class="card-body p-4">
-
-                    <form asp-action="Add"
-                          method="post">
-
-                        <!-- Customer -->
-                        <div class="mb-3">
-
-                            <label class="form-label fw-semibold">
-                                Customer
-                            </label>
-
-                            <select asp-for="CustomerId"
-                                    class="form-select">
-
-                                <option value="">
-                                    -- Select Customer --
-                                </option>
-
-                                @foreach (var customer in ViewBag.Customers)
-                                {
-                                    <option value="@customer.CustomerId">
-                                        @customer.Name
-                                    </option>
-                                }
-
-                            </select>
-
-                            <span asp-validation-for="CustomerId"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Balance -->
-                        <div class="mb-3">
-
-                            <label asp-for="Balance"
-                                   class="form-label fw-semibold">
-                                Initial Balance
-                            </label>
-
-                            <input asp-for="Balance"
-                                   type="number"
-                                   step="0.01"
-                                   class="form-control"
-                                   placeholder="Enter initial balance" />
-
-                            <span asp-validation-for="Balance"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Status -->
-                        <div class="mb-4">
-
-                            <label asp-for="Status"
-                                   class="form-label fw-semibold">
-                                Account Status
-                            </label>
-
-                            <select asp-for="Status"
-                                    class="form-select">
-
-                                <option value="">
-                                    -- Select Status --
-                                </option>
-
-                                <option value="Active">
-                                    Active
-                                </option>
-
-                                <option value="Inactive">
-                                    Inactive
-                                </option>
-
-                            </select>
-
-                            <span asp-validation-for="Status"
-                                  class="text-danger">
-                            </span>
-
-                        </div>
-
-
-                        <!-- Buttons -->
-                        <div class="d-flex gap-2">
-
-                            <button type="submit"
-                                    class="btn btn-primary px-4">
-
-                                <i class="bi bi-bank me-1"></i>
-                                Create Account
-
-                            </button>
-
-                            <a asp-controller="Account"
-                               asp-action="Index"
-                               class="btn btn-secondary px-4">
-
-                                Cancel
-
-                            </a>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
+            <div>
+                <h1>Create Account</h1>
+                <p>Open a new bank account with initial deposit for an existing customer</p>
             </div>
 
         </div>
 
     </div>
 
+    <!-- Main Card -->
+    <div class="account-main-card">
+
+        <form asp-action="Add" method="post">
+
+            <div class="section">
+
+                <div class="section-heading">
+                    <div class="section-icon">
+                        <i class="bi bi-bank2"></i>
+                    </div>
+                    <div>
+                        <h3>Account Specifications</h3>
+                        <p>Assign customer and set opening balance details</p>
+                    </div>
+                </div>
+
+                <!-- API / Model Error Summary -->
+                <div asp-validation-summary="ModelOnly" class="form-error"></div>
+
+                <div class="form-grid">
+
+                    <!-- Customer -->
+                    <div class="form-field full-width">
+                        <label asp-for="CustomerId">
+                            Customer Account Holder <span>*</span>
+                        </label>
+                        <div class="input-container select-container">
+                            <i class="bi bi-person-fill"></i>
+                            <select asp-for="CustomerId" class="form-select-custom">
+                                <option value="">-- Choose a registered customer --</option>
+                                @if (ViewBag.Customers != null)
+                                {
+                                    foreach (var customer in ViewBag.Customers)
+                                    {
+                                        <option value="@customer.CustomerId">
+                                            @customer.Name (@customer.Phone)
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <span asp-validation-for="CustomerId" class="validation-message"></span>
+                    </div>
+
+                    <!-- Initial Balance -->
+                    <div class="form-field">
+                        <label asp-for="Balance">
+                            Initial Opening Balance <span>*</span>
+                        </label>
+                        <div class="input-container">
+                            <span class="currency-prefix">₹</span>
+                            <input asp-for="Balance"
+                                   type="number"
+                                   step="0.01"
+                                   min="0"
+                                   placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="Balance" class="validation-message"></span>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-field">
+                        <label asp-for="Status">
+                            Account Status <span>*</span>
+                        </label>
+                        <div class="input-container select-container">
+                            <i class="bi bi-shield-check"></i>
+                            <select asp-for="Status" class="form-select-custom">
+                                <option value="Active" selected>Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="Status" class="validation-message"></span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="form-footer">
+
+                <a asp-action="Index" class="cancel-button">
+                    Cancel
+                </a>
+
+                <button type="submit" class="submit-button">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    Create Account
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
 </div>
 
+<style>
+
+    body {
+        background: #f5f7fb;
+    }
+
+    .account-form-wrapper {
+        max-width: 850px;
+        margin: 30px auto;
+        padding: 0 20px 40px;
+    }
+
+    /* =========================
+           HEADER
+           ========================= */
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        transition: .2s;
+    }
+
+        .back-button:hover {
+            color: #d97706;
+        }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 25px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, .25);
+    }
+
+    .header-content h1 {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 750;
+        color: #1e293b;
+    }
+
+    .header-content p {
+        margin: 4px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    /* =========================
+           MAIN CARD
+           ========================= */
+
+    .account-main-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        box-shadow: 0 10px 35px rgba(15, 23, 42, .07);
+        overflow: hidden;
+    }
+
+    .section {
+        padding: 30px;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .section-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .section-heading h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .section-heading p {
+        margin: 3px 0 0;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    /* =========================
+           FORM
+           ========================= */
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .full-width {
+        grid-column: span 2;
+    }
+
+    .form-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+        .form-field label span {
+            color: #dc2626;
+        }
+
+    .input-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        border: 1px solid #dbe1ea;
+        border-radius: 11px;
+        background: #fff;
+        transition: .2s;
+    }
+
+        .input-container i {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 16px;
+        }
+
+        .currency-prefix {
+            padding: 0 14px;
+            font-weight: 700;
+            color: #64748b;
+            font-size: 15px;
+            border-right: 1px solid #e2e8f0;
+            background: #fafbfe;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            border-radius: 11px 0 0 11px;
+        }
+
+        .input-container input {
+            width: 100%;
+            height: 48px;
+            border: none;
+            outline: none;
+            padding: 0 14px;
+            font-size: 14px;
+            color: #1e293b;
+            border-radius: 11px;
+            background: transparent;
+        }
+
+        .input-container:focus-within {
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, .12);
+        }
+
+    .form-select-custom {
+        width: 100%;
+        height: 48px;
+        border: none;
+        outline: none;
+        padding: 0 14px 0 44px;
+        font-size: 14px;
+        color: #1e293b;
+        background: transparent;
+        border-radius: 11px;
+        cursor: pointer;
+    }
+
+    .validation-message {
+        display: block;
+        margin-top: 5px;
+        color: #dc2626;
+        font-size: 12px;
+    }
+
+    .form-error {
+        margin-bottom: 18px;
+        color: #dc2626;
+        font-size: 13px;
+    }
+
+    /* =========================
+           FOOTER
+           ========================= */
+
+    .form-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 20px 30px;
+        background: #fafbfe;
+        border-top: 1px solid #eef2f7;
+    }
+
+    .cancel-button,
+    .submit-button {
+        height: 44px;
+        padding: 0 22px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: .2s;
+        cursor: pointer;
+    }
+
+    .cancel-button {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+        .cancel-button:hover {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+    .submit-button {
+        border: none;
+        color: white;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        box-shadow: 0 5px 15px rgba(245, 158, 11, .25);
+    }
+
+        .submit-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 7px 18px rgba(245, 158, 11, .32);
+        }
+
+    /* =========================
+           MOBILE
+           ========================= */
+
+    @@media (max-width: 768px) {
+        .account-form-wrapper {
+            padding: 0 12px;
+            margin-top: 20px;
+        }
+
+        .section {
+            padding: 20px 16px;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .full-width {
+            grid-column: span 1;
+        }
+
+        .form-footer {
+            padding: 16px;
+            flex-direction: column-reverse;
+        }
+
+        .cancel-button,
+        .submit-button {
+            width: 100%;
+        }
+    }
+
+</style>
 
 @section Scripts {
-
     <partial name="_ValidationScriptsPartial" />
-
 }
-

@@ -1,215 +1,821 @@
-﻿@model List<CustomerModel>
+@model List<CustomerModel>
 
 @{
     ViewData["Title"] = "Customers";
 }
 
-<div class="container py-5">
+<div class="customer-index-wrapper">
 
-    <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+    <!-- Page Header -->
+    <div class="page-header">
 
-        <div>
-            <h2 class="fw-bold mb-1">Customers</h2>
+        <div class="header-content">
 
-            <p class="text-muted mb-0">
-                Manage your customer information
-            </p>
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <h1>Customers</h1>
+                    <p>Manage and inspect all registered bank customer profiles</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <!-- Export Dropdown -->
+                <div class="export-dropdown-wrapper">
+                    <button type="button" class="export-btn" id="exportDropdownBtn" onclick="toggleExportMenu(event)">
+                        <i class="bi bi-download"></i>
+                        <span>Export List</span>
+                        <i class="bi bi-chevron-down ms-1" style="font-size: 11px;"></i>
+                    </button>
+                    <div class="export-dropdown-menu hidden" id="exportDropdownMenu">
+                        <button type="button" class="export-menu-item" onclick="exportCustomersToExcel()">
+                            <i class="bi bi-file-earmark-excel-fill text-success"></i>
+                            <div class="export-item-text">
+                                <span class="export-item-title">Excel (.xlsx)</span>
+                                <span class="export-item-desc">Download total customer directory</span>
+                            </div>
+                        </button>
+                        <button type="button" class="export-menu-item" onclick="exportCustomersToPDF()">
+                            <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                            <div class="export-item-text">
+                                <span class="export-item-title">PDF Document (.pdf)</span>
+                                <span class="export-item-desc">Official bank customer report</span>
+                            </div>
+                        </button>
+                        <button type="button" class="export-menu-item" onclick="exportCustomersToCSV()">
+                            <i class="bi bi-file-earmark-text-fill text-primary"></i>
+                            <div class="export-item-text">
+                                <span class="export-item-title">CSV File (.csv)</span>
+                                <span class="export-item-desc">Raw comma-separated values</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <a asp-action="Add" class="add-customer-btn">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Add Customer
+                </a>
+            </div>
+
         </div>
-
-        <!-- Add Customer Button -->
-        <a asp-action="Add"
-           class="btn btn-primary mt-3 mt-md-0 px-4">
-
-            <i class="bi bi-person-plus me-1"></i>
-            Add Customer
-
-        </a>
 
     </div>
 
+    <!-- Table Card -->
+    <div class="customer-table-card">
 
-    <!-- Customer Table Card -->
-    <div class="card border-0 shadow-sm rounded-4">
+        <!-- Card Toolbar -->
+        <div class="table-toolbar">
 
-        <div class="card-body p-0">
+            <div class="count-badge">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>@(Model?.Count ?? 0) registered customer(s)</span>
+            </div>
 
-            @if (Model != null && Model.Any())
-            {
-                <div class="table-responsive">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text"
+                       id="customerSearch"
+                       placeholder="Search by name, email, or phone..."
+                       autocomplete="off" />
+            </div>
 
-                    <table class="table table-hover align-middle mb-0">
+        </div>
 
-                        <!-- Table Header -->
-                        <thead class="table-light">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
 
-                            <tr>
+                <table class="modern-table" id="customerTable">
 
-                                <th class="ps-4">
-                                    S.No
-                                </th>
+                    <thead>
+                        <tr>
+                            <th class="ps-4">S.No</th>
+                            <th>Customer Name</th>
+                            <th>Email Address</th>
+                            <th>Phone Number</th>
+                            <th>Residential Address</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
 
-                                <th>
-                                    Customer
-                                </th>
+                    <tbody>
+                        @{
+                            int serialNumber = 1;
+                        }
 
-                                <th>
-                                    Email
-                                </th>
+                        @foreach (var customer in Model)
+                        {
+                            <tr class="customer-row">
 
-                                <th>
-                                    Phone
-                                </th>
+                                <td class="ps-4 text-muted">
+                                    @serialNumber
+                                </td>
 
-                                <th>
-                                    Address
-                                </th>
+                                <td>
+                                    <div class="customer-cell">
+                                        <div class="customer-avatar-sm">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <div>
+                                            <strong class="customer-name-text">@customer.Name</strong>
+                                        </div>
+                                    </div>
+                                </td>
 
-                                <th class="text-center">
-                                    Actions
-                                </th>
+                                <td class="customer-email-text">
+                                    <span class="text-secondary">@customer.Email</span>
+                                </td>
 
-                            </tr>
+                                <td class="customer-phone-text">
+                                    <span>
+                                        <i class="bi bi-telephone text-muted me-1"></i>
+                                        @customer.Phone
+                                    </span>
+                                </td>
 
-                        </thead>
+                                <td class="customer-address-text">
+                                    <span class="text-muted">@customer.Address</span>
+                                </td>
 
-
-                        <!-- Table Body -->
-                        <tbody>
-
-                            @{
-                                int serialNumber = 1;
-                            }
-
-                            @foreach (var customer in Model)
-                            {
-                                <tr>
-
-                                    <!-- S.No -->
-                                    <td class="ps-4 text-muted">
-                                        @serialNumber
-                                    </td>
-
-
-                                    <!-- Customer Name -->
-                                    <td>
-                                        <span class="fw-semibold">
-                                            @customer.Name
-                                        </span>
-                                    </td>
-
-
-                                    <!-- Email -->
-                                    <td>
-                                        <span class="text-muted">
-                                            @customer.Email
-                                        </span>
-                                    </td>
-
-
-                                    <!-- Phone -->
-                                    <td>
-                                        <span class="text-muted">
-                                            @customer.Phone
-                                        </span>
-                                    </td>
-
-
-                                    <!-- Address -->
-                                    <td>
-                                        <span class="text-muted">
-                                            @customer.Address
-                                        </span>
-                                    </td>
-
-
-                                    <!-- Actions -->
-                                    <td class="text-center">
-
-                                        <!-- Edit Button -->
+                                <td class="text-center">
+                                    <div class="action-buttons">
                                         <a asp-action="Edit"
                                            asp-route-id="@customer.CustomerId"
-                                           class="btn btn-sm btn-outline-primary me-1"
+                                           class="action-btn edit-btn"
                                            title="Edit Customer">
-
-                                            <i class="bi bi-pencil"></i>
-
+                                            <i class="bi bi-pencil-fill"></i>
                                         </a>
 
-
-                                        <!-- Delete Button -->
                                         <form asp-action="Delete"
                                               asp-route-id="@customer.CustomerId"
                                               method="post"
                                               style="display:inline;"
-                                              onsubmit="return confirm('Are you sure you want to delete this customer?');">
-
+                                              onsubmit="return confirm('Are you sure you want to delete @customer.Name?');">
                                             <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger"
+                                                    class="action-btn delete-btn"
                                                     title="Delete Customer">
-
-                                                <i class="bi bi-trash"></i>
-
+                                                <i class="bi bi-trash3-fill"></i>
                                             </button>
-
                                         </form>
+                                    </div>
+                                </td>
 
-                                    </td>
+                            </tr>
 
-                                </tr>
+                            serialNumber++;
+                        }
+                    </tbody>
 
-                                serialNumber++;
-                            }
+                </table>
 
-                        </tbody>
-
-                    </table>
-
+                <div id="noMatchCustomer" class="empty-state hidden">
+                    <i class="bi bi-funnel"></i>
+                    <h4>No Matching Customers</h4>
+                    <p>No customer profiles match your search criteria.</p>
                 </div>
-            }
-            else
-            {
-                <!-- Empty State -->
 
-                <div class="text-center py-5">
-
-                    <div class="mb-3">
-
-                        <span class="d-inline-flex align-items-center justify-content-center
-                            bg-light text-muted rounded-circle"
-                              style="width: 70px; height: 70px;">
-
-                            <i class="bi bi-people fs-2"></i>
-
-                        </span>
-
-                    </div>
-
-
-                    <h5 class="fw-semibold">
-                        No customers found
-                    </h5>
-
-
-                    <p class="text-muted mb-4">
-                        Start by adding your first customer.
-                    </p>
-
-
-                    <!-- Add First Customer -->
-                    <a asp-action="Add"
-                       class="btn btn-primary px-4">
-
-                        <i class="bi bi-person-plus me-1"></i>
-                        Add Customer
-
-                    </a>
-
-                </div>
-            }
-
-        </div>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-people"></i>
+                <h4>No Customers Found</h4>
+                <p>Start by registering your first customer profile in the system.</p>
+                <a asp-action="Add" class="add-customer-btn mt-3">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Add First Customer
+                </a>
+            </div>
+        }
 
     </div>
 
 </div>
+
+<style>
+
+    body {
+        background: #f5f7fb;
+    }
+
+    .customer-index-wrapper {
+        max-width: 1150px;
+        margin: 30px auto;
+        padding: 0 20px 40px;
+    }
+
+    /* =========================
+           HEADER
+           ========================= */
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 25px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, .25);
+    }
+
+    .header-left h1 {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 750;
+        color: #1e293b;
+    }
+
+    .header-left p {
+        margin: 4px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    /* Export Dropdown */
+    .export-dropdown-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .export-btn {
+        height: 44px;
+        padding: 0 18px;
+        border-radius: 10px;
+        background: white;
+        color: #1e293b;
+        border: 1.5px solid #cbd5e1;
+        font-size: 13.5px;
+        font-weight: 650;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
+        transition: all 0.2s ease;
+    }
+
+        .export-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        }
+
+    .export-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+        min-width: 250px;
+        z-index: 1000;
+        padding: 6px;
+        animation: dropFadeIn 0.18s ease;
+    }
+
+        .export-dropdown-menu.hidden {
+            display: none !important;
+        }
+
+    .export-menu-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border: none;
+        background: transparent;
+        text-align: left;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+        .export-menu-item:hover {
+            background: #f1f5f9;
+        }
+
+        .export-menu-item i {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+    .export-item-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .export-item-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .export-item-desc {
+        font-size: 11px;
+        color: #64748b;
+    }
+
+    @@keyframes dropFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .add-customer-btn {
+        height: 44px;
+        padding: 0 20px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        font-size: 13.5px;
+        font-weight: 650;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, .22);
+        transition: .2s;
+    }
+
+        .add-customer-btn:hover {
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(37, 99, 235, .30);
+        }
+
+    /* =========================
+           TABLE CARD
+           ========================= */
+
+    .customer-table-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        box-shadow: 0 10px 35px rgba(15, 23, 42, .07);
+        overflow: hidden;
+    }
+
+    .table-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #eef2f7;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .count-badge {
+        font-size: 13px;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .count-badge i {
+            color: #16a34a;
+        }
+
+    .search-box {
+        position: relative;
+        width: 300px;
+    }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #dbe1ea;
+            border-radius: 10px;
+            padding: 0 14px 0 38px;
+            font-size: 13px;
+            outline: none;
+            transition: .2s;
+        }
+
+            .search-box input:focus {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+            }
+
+    /* =========================
+           TABLE
+           ========================= */
+
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+        .modern-table th {
+            background: #fafbfe;
+            padding: 14px 20px;
+            font-weight: 700;
+            color: #475569;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #eef2f7;
+            white-space: nowrap;
+        }
+
+        .modern-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .modern-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .modern-table tr:hover td {
+            background: #f8faff;
+        }
+
+    .customer-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .customer-avatar-sm {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #eef4ff;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .customer-name-text {
+        color: #1e293b;
+        font-size: 14px;
+    }
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .action-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: .2s;
+        text-decoration: none;
+    }
+
+    .edit-btn {
+        background: #eff6ff;
+        color: #2563eb;
+        border-color: #bfdbfe;
+    }
+
+        .edit-btn:hover {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+    .delete-btn {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+    /* =========================
+           EMPTY
+           ========================= */
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: #64748b;
+    }
+
+        .empty-state i {
+            font-size: 42px;
+            color: #94a3b8;
+        }
+
+        .empty-state h4 {
+            margin: 12px 0 6px;
+            color: #334155;
+            font-size: 17px;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 13.5px;
+        }
+
+    .hidden {
+        display: none !important;
+    }
+
+    /* =========================
+           MOBILE
+           ========================= */
+
+    @@media (max-width: 768px) {
+        .customer-index-wrapper {
+            padding: 0 12px;
+            margin-top: 20px;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .add-customer-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .table-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+    }
+
+</style>
+
+<!-- External Export Libraries (SheetJS for Excel, jsPDF for PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+    // Total list of customers serialized from backend Model
+    const totalCustomers = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<CustomerModel>()));
+
+    function toggleExportMenu(e) {
+        if (e) e.stopPropagation();
+        const menu = document.getElementById("exportDropdownMenu");
+        if (menu) menu.classList.toggle("hidden");
+    }
+
+    document.addEventListener("click", function(e) {
+        const wrapper = document.querySelector(".export-dropdown-wrapper");
+        if (wrapper && !wrapper.contains(e.target)) {
+            const menu = document.getElementById("exportDropdownMenu");
+            if (menu) menu.classList.add("hidden");
+        }
+    });
+
+    function getFormattedTimestamp() {
+        const now = new Date();
+        return now.toISOString().slice(0, 10);
+    }
+
+    function exportCustomersToExcel() {
+        toggleExportMenu();
+        if (!totalCustomers || totalCustomers.length === 0) {
+            alert("No customer records to export.");
+            return;
+        }
+
+        const dateStr = getFormattedTimestamp();
+
+        if (typeof XLSX !== "undefined") {
+            const excelRows = totalCustomers.map((c, idx) => ({
+                "S.No": idx + 1,
+                "Customer ID": c.CustomerId,
+                "Customer Name": c.Name || "N/A",
+                "Email Address": c.Email || "N/A",
+                "Phone Number": c.Phone || "N/A",
+                "Residential Address": c.Address || "N/A",
+                "Registered Date": c.Createddate ? new Date(c.Createddate).toLocaleDateString() : "N/A"
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(excelRows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Customers");
+
+            ws["!cols"] = [
+                { wch: 6 },
+                { wch: 12 },
+                { wch: 24 },
+                { wch: 28 },
+                { wch: 16 },
+                { wch: 35 },
+                { wch: 16 }
+            ];
+
+            XLSX.writeFile(wb, `Bank_Customers_Total_List_${dateStr}.xlsx`);
+        } else {
+            exportCustomersToCSV();
+        }
+    }
+
+    function exportCustomersToCSV() {
+        toggleExportMenu();
+        if (!totalCustomers || totalCustomers.length === 0) {
+            alert("No customer records to export.");
+            return;
+        }
+
+        const dateStr = getFormattedTimestamp();
+        let csv = "\uFEFFS.No,Customer ID,Customer Name,Email Address,Phone Number,Residential Address,Registered Date\n";
+
+        totalCustomers.forEach((c, idx) => {
+            const name = `"${(c.Name || '').replace(/"/g, '""')}"`;
+            const email = `"${(c.Email || '').replace(/"/g, '""')}"`;
+            const phone = `"${(c.Phone || '').replace(/"/g, '""')}"`;
+            const address = `"${(c.Address || '').replace(/"/g, '""')}"`;
+            const regDate = c.Createddate ? new Date(c.Createddate).toLocaleDateString() : "N/A";
+            csv += `${idx + 1},${c.CustomerId},${name},${email},${phone},${address},"${regDate}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `Bank_Customers_Total_List_${dateStr}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function exportCustomersToPDF() {
+        toggleExportMenu();
+        if (!totalCustomers || totalCustomers.length === 0) {
+            alert("No customer records to export.");
+            return;
+        }
+
+        const dateStr = getFormattedTimestamp();
+
+        if (window.jspdf && window.jspdf.jsPDF) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            const pageWidth = doc.internal.pageSize.width;
+
+            // Brand Header Banner
+            doc.setFillColor(30, 41, 59);
+            doc.rect(0, 0, pageWidth, 64, 'F');
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text("BANKING MANAGEMENT SYSTEM", 40, 30);
+
+            doc.setFontSize(9.5);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(203, 213, 225);
+            doc.text("REGISTERED CUSTOMERS DIRECTORY REPORT", 40, 48);
+
+            // Sub Header Metadata
+            doc.setFontSize(9);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`Generated: ${new Date().toLocaleString()}  |  Total Customers: ${totalCustomers.length}`, 40, 84);
+
+            // Table Data
+            const headers = [["#", "Customer Name", "Email Address", "Phone", "Residential Address"]];
+            const rows = totalCustomers.map((c, idx) => [
+                idx + 1,
+                c.Name || "-",
+                c.Email || "-",
+                c.Phone || "-",
+                c.Address || "-"
+            ]);
+
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: 96,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [37, 99, 235],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    fontSize: 9
+                },
+                bodyStyles: {
+                    fontSize: 8.5,
+                    textColor: [30, 41, 59]
+                },
+                alternateRowStyles: {
+                    fillColor: [248, 250, 252]
+                },
+                margin: { left: 40, right: 40 },
+                didDrawPage: function(data) {
+                    const pageCount = doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.setTextColor(148, 163, 184);
+                    doc.text(`Page ${data.pageNumber} of ${pageCount} — Confidential Banking Document`, 40, doc.internal.pageSize.height - 20);
+                }
+            });
+
+            doc.save(`Bank_Customers_Report_${dateStr}.pdf`);
+        } else {
+            window.print();
+        }
+    }
+
+    // Search filter
+    const searchInput = document.getElementById("customerSearch");
+    const customerRows = document.querySelectorAll(".customer-row");
+    const noMatchCustomer = document.getElementById("noMatchCustomer");
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            const query = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            customerRows.forEach(function (row) {
+                const text = row.textContent.toLowerCase();
+                if (query === "" || text.includes(query)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            if (noMatchCustomer) {
+                if (visibleCount === 0 && customerRows.length > 0) {
+                    noMatchCustomer.classList.remove("hidden");
+                } else {
+                    noMatchCustomer.classList.add("hidden");
+                }
+            }
+        });
+    }
+
+</script>

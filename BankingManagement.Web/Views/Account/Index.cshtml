@@ -1,144 +1,863 @@
-﻿@model List<BankingManagement.Web.Models.AccountModel>
+@model List<BankingManagement.Web.Models.AccountModel>
 
 @{
     ViewData["Title"] = "Accounts";
 }
 
-<div class="container-fluid px-5 mt-5">
+<div class="account-index-wrapper">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-5">
+    <!-- Page Header -->
+    <div class="page-header">
 
-        <div>
-            <h1 class="fw-bold mb-1">Accounts</h1>
-            <p class="text-muted fs-5 mb-0">
-                Manage your customer accounts
-            </p>
+        <div class="header-content">
+
+            <div class="header-left">
+                <div class="header-icon">
+                    <i class="bi bi-bank2"></i>
+                </div>
+                <div>
+                    <h1>Accounts</h1>
+                    <p>Manage, inspect, and update customer bank accounts and balances</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <!-- Export Dropdown -->
+                <div class="export-dropdown-wrapper">
+                    <button type="button" class="export-btn" id="exportAccountDropdownBtn" onclick="toggleAccountExportMenu(event)">
+                        <i class="bi bi-download"></i>
+                        <span>Export List</span>
+                        <i class="bi bi-chevron-down ms-1" style="font-size: 11px;"></i>
+                    </button>
+                    <div class="export-dropdown-menu hidden" id="exportAccountDropdownMenu">
+                        <button type="button" class="export-menu-item" onclick="exportAccountsToExcel()">
+                            <i class="bi bi-file-earmark-excel-fill text-success"></i>
+                            <div class="export-item-text">
+                                <span class="export-item-title">Excel (.xlsx)</span>
+                                <span class="export-item-desc">Download total accounts spreadsheet</span>
+                            </div>
+                        </button>
+                        <button type="button" class="export-menu-item" onclick="exportAccountsToPDF()">
+                            <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                            <div class="export-item-text">
+                                <span class="export-item-title">PDF Document (.pdf)</span>
+                                <span class="export-item-desc">Official bank accounts statement</span>
+                            </div>
+                        </button>
+                        <button type="button" class="export-menu-item" onclick="exportAccountsToCSV()">
+                            <i class="bi bi-file-earmark-text-fill text-primary"></i>
+                            <div class="export-item-text">
+                                <span class="export-item-title">CSV File (.csv)</span>
+                                <span class="export-item-desc">Raw comma-separated data</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <a asp-action="Add" class="add-account-btn">
+                    <i class="bi bi-wallet-plus"></i>
+                    Add Account
+                </a>
+            </div>
+
         </div>
-
-        <a asp-controller="Account"
-           asp-action="Add"
-           class="btn btn-primary px-4 py-2">
-            <i class="bi bi-person-plus"></i>
-            Add Account
-        </a>
 
     </div>
 
+    <!-- Table Card -->
+    <div class="account-table-card">
 
-    <!-- Account Table -->
-    <div class="table-responsive">
+        <!-- Card Toolbar -->
+        <div class="table-toolbar">
 
-        <table class="table table-hover align-middle">
+            <div class="count-badge">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>@(Model?.Count ?? 0) total account(s) registered</span>
+            </div>
 
-            <thead class="table-light">
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text"
+                       id="accountSearch"
+                       placeholder="Search by account number or customer name..."
+                       autocomplete="off" />
+            </div>
 
-                <tr>
-                    <th class="px-4">S.No</th>
-                    <th>Account Number</th>
-                    <th>Customer</th>
-                    <th>Balance</th>
-                    <th>Status</th>
-                   @* <th>Created Date</th> *@
-                    <th class="text-center">Actions</th>
-                </tr>
+        </div>
 
-            </thead>
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
 
-            <tbody>
+                <table class="modern-table" id="accountTable">
 
-                @if (Model != null && Model.Any())
-                {
-                    int serialNo = 1;
-
-                    foreach (var account in Model)
-                    {
+                    <thead>
                         <tr>
-
-                            <!-- S.No -->
-                            <td class="px-4">
-                                @serialNo
-                            </td>
-
-                            <!-- Account Number -->
-                            <td>
-                                @account.AccountNumber
-                            </td>
-
-                            <!-- Customer Name -->
-                            <td class="fw-semibold">
-                                @account.CustomerName
-                            </td>
-
-                            <!-- Balance -->
-                            <td>
-                                ₹@account.Balance.ToString("N2")
-                            </td>
-
-                            <!-- Status -->
-                            <td>
-                                @if (account.Status == "Active")
-                                {
-                                    <span class="badge bg-success">
-                                        Active
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">
-                                        @account.Status
-                                    </span>
-                                }
-                            </td>
-
-                            <!-- Created Date -->
-                            @* <td>
-                                @account.CreatedDate.ToString("dd-MM-yyyy")
-                            </td> *@
-
-                            <!-- Actions -->
-                            <td class="text-center">
-
-                                <a asp-controller="Account"
-                                   asp-action="Edit"
-                                   asp-route-id="@account.AccountId"
-                                   class="btn btn-outline-primary btn-sm me-2"
-                                   title="Edit">
-
-                                    <i class="bi bi-pencil"></i>
-
-                                </a>
-
-                                <a asp-controller="Account"
-                                   asp-action="Delete"
-                                   asp-route-id="@account.AccountId"
-                                   class="btn btn-outline-danger btn-sm"
-                                   title="Delete">
-
-                                    <i class="bi bi-trash"></i>
-
-                                </a>
-
-                            </td>
-
+                            <th class="ps-4">S.No</th>
+                            <th>Account Number</th>
+                            <th>Customer</th>
+                            <th>Available Balance</th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
                         </tr>
+                    </thead>
 
-                        serialNo++;
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">
-                            No accounts found.
-                        </td>
-                    </tr>
-                }
+                    <tbody>
+                        @{
+                            int serialNo = 1;
+                        }
 
-            </tbody>
+                        @foreach (var account in Model)
+                        {
+                            var isActive = account.Status == "Active";
 
-        </table>
+                            <tr class="account-row">
+
+                                <td class="ps-4 text-muted">
+                                    @serialNo
+                                </td>
+
+                                <td>
+                                    <div class="account-num-cell">
+                                        <i class="bi bi-credit-card-2-front text-muted"></i>
+                                        <strong>@account.AccountNumber</strong>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="customer-cell">
+                                        <div class="customer-avatar-sm">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+                                        <span>@account.CustomerName</span>
+                                    </div>
+                                </td>
+
+                                <td class="balance-cell">
+                                    <strong>₹@account.Balance.ToString("N2")</strong>
+                                </td>
+
+                                <td>
+                                    @if (isActive)
+                                    {
+                                        <span class="status-badge status-active">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-inactive">
+                                            <i class="bi bi-slash-circle-fill"></i>
+                                            @account.Status
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a asp-action="Edit"
+                                           asp-route-id="@account.AccountId"
+                                           class="action-btn edit-btn"
+                                           title="Edit Account">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+
+                                        <form asp-action="Delete"
+                                              asp-route-id="@account.AccountId"
+                                              method="post"
+                                              style="display:inline;"
+                                              onsubmit="return confirm('Are you sure you want to delete Account #@account.AccountNumber?');">
+                                            <button type="submit"
+                                                    class="action-btn delete-btn"
+                                                    title="Delete Account">
+                                                <i class="bi bi-trash3-fill"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                            serialNo++;
+                        }
+                    </tbody>
+
+                </table>
+
+                <div id="noMatchAccount" class="empty-state hidden">
+                    <i class="bi bi-funnel"></i>
+                    <h4>No Matching Accounts</h4>
+                    <p>No accounts match your search criteria.</p>
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-bank2"></i>
+                <h4>No Accounts Found</h4>
+                <p>There are no customer bank accounts registered in the system yet.</p>
+                <a asp-action="Add" class="add-account-btn mt-3">
+                    <i class="bi bi-wallet-plus"></i>
+                    Create First Account
+                </a>
+            </div>
+        }
 
     </div>
 
 </div>
+
+<style>
+
+    body {
+        background: #f5f7fb;
+    }
+
+    .account-index-wrapper {
+        max-width: 1150px;
+        margin: 30px auto;
+        padding: 0 20px 40px;
+    }
+
+    /* =========================
+           HEADER
+           ========================= */
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .header-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 25px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        box-shadow: 0 8px 20px rgba(245, 158, 11, .25);
+    }
+
+    .header-left h1 {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 750;
+        color: #1e293b;
+    }
+
+    .header-left p {
+        margin: 4px 0 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    /* Export Dropdown */
+    .export-dropdown-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .export-btn {
+        height: 44px;
+        padding: 0 18px;
+        border-radius: 10px;
+        background: white;
+        color: #1e293b;
+        border: 1.5px solid #cbd5e1;
+        font-size: 13.5px;
+        font-weight: 650;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.04);
+        transition: all 0.2s ease;
+    }
+
+        .export-btn:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+        }
+
+    .export-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+        min-width: 250px;
+        z-index: 1000;
+        padding: 6px;
+        animation: dropFadeIn 0.18s ease;
+    }
+
+        .export-dropdown-menu.hidden {
+            display: none !important;
+        }
+
+    .export-menu-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border: none;
+        background: transparent;
+        text-align: left;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+        .export-menu-item:hover {
+            background: #f1f5f9;
+        }
+
+        .export-menu-item i {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+    .export-item-text {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .export-item-title {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .export-item-desc {
+        font-size: 11px;
+        color: #64748b;
+    }
+
+    @@keyframes dropFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-6px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .add-account-btn {
+        height: 44px;
+        padding: 0 20px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        font-size: 13.5px;
+        font-weight: 650;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, .25);
+        transition: .2s;
+    }
+
+        .add-account-btn:hover {
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(245, 158, 11, .32);
+        }
+
+    /* =========================
+           TABLE CARD
+           ========================= */
+
+    .account-table-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        box-shadow: 0 10px 35px rgba(15, 23, 42, .07);
+        overflow: hidden;
+    }
+
+    .table-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #eef2f7;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .count-badge {
+        font-size: 13px;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+        .count-badge i {
+            color: #16a34a;
+        }
+
+    .search-box {
+        position: relative;
+        width: 320px;
+    }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .search-box input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #dbe1ea;
+            border-radius: 10px;
+            padding: 0 14px 0 38px;
+            font-size: 13px;
+            outline: none;
+            transition: .2s;
+        }
+
+            .search-box input:focus {
+                border-color: #f59e0b;
+                box-shadow: 0 0 0 3px rgba(245, 158, 11, .12);
+            }
+
+    /* =========================
+           TABLE
+           ========================= */
+
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+    }
+
+        .modern-table th {
+            background: #fafbfe;
+            padding: 14px 20px;
+            font-weight: 700;
+            color: #475569;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #eef2f7;
+            white-space: nowrap;
+        }
+
+        .modern-table td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .modern-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .modern-table tr:hover td {
+            background: #fffbeb;
+        }
+
+    .account-num-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #1e293b;
+        font-size: 14px;
+    }
+
+    .customer-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .customer-avatar-sm {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #fff7ed;
+        color: #ea580c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    .balance-cell strong {
+        color: #16a34a;
+        font-size: 14px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .status-active {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .status-inactive {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .action-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: .2s;
+        text-decoration: none;
+    }
+
+    .edit-btn {
+        background: #fff7ed;
+        color: #d97706;
+        border-color: #fde68a;
+    }
+
+        .edit-btn:hover {
+            background: #d97706;
+            color: white;
+            border-color: #d97706;
+        }
+
+    .delete-btn {
+        background: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+        .delete-btn:hover {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+    /* =========================
+           EMPTY
+           ========================= */
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: #64748b;
+    }
+
+        .empty-state i {
+            font-size: 42px;
+            color: #94a3b8;
+        }
+
+        .empty-state h4 {
+            margin: 12px 0 6px;
+            color: #334155;
+            font-size: 17px;
+        }
+
+        .empty-state p {
+            margin: 0;
+            font-size: 13.5px;
+        }
+
+    .hidden {
+        display: none !important;
+    }
+
+    /* =========================
+           MOBILE
+           ========================= */
+
+    @@media (max-width: 768px) {
+        .account-index-wrapper {
+            padding: 0 12px;
+            margin-top: 20px;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .add-account-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .table-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+    }
+
+</style>
+
+<!-- External Export Libraries (SheetJS for Excel, jsPDF for PDF) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+    // Total list of accounts serialized from backend Model
+    const totalAccounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model ?? new List<BankingManagement.Web.Models.AccountModel>()));
+
+    function toggleAccountExportMenu(e) {
+        if (e) e.stopPropagation();
+        const menu = document.getElementById("exportAccountDropdownMenu");
+        if (menu) menu.classList.toggle("hidden");
+    }
+
+    document.addEventListener("click", function(e) {
+        const wrapper = document.querySelector(".export-dropdown-wrapper");
+        if (wrapper && !wrapper.contains(e.target)) {
+            const menu = document.getElementById("exportAccountDropdownMenu");
+            if (menu) menu.classList.add("hidden");
+        }
+    });
+
+    function getFormattedTimestamp() {
+        const now = new Date();
+        return now.toISOString().slice(0, 10);
+    }
+
+    function exportAccountsToExcel() {
+        toggleAccountExportMenu();
+        if (!totalAccounts || totalAccounts.length === 0) {
+            alert("No account records to export.");
+            return;
+        }
+
+        const dateStr = getFormattedTimestamp();
+
+        if (typeof XLSX !== "undefined") {
+            const excelRows = totalAccounts.map((a, idx) => ({
+                "S.No": idx + 1,
+                "Account Number": a.AccountNumber,
+                "Customer Name": a.CustomerName || "N/A",
+                "Available Balance (INR)": Number(a.Balance || 0),
+                "Account Status": a.Status || "Active",
+                "Opened Date": a.CreatedDate ? new Date(a.CreatedDate).toLocaleDateString() : "N/A"
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(excelRows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Accounts");
+
+            ws["!cols"] = [
+                { wch: 6 },
+                { wch: 18 },
+                { wch: 26 },
+                { wch: 22 },
+                { wch: 14 },
+                { wch: 16 }
+            ];
+
+            XLSX.writeFile(wb, `Bank_Accounts_Total_List_${dateStr}.xlsx`);
+        } else {
+            exportAccountsToCSV();
+        }
+    }
+
+    function exportAccountsToCSV() {
+        toggleAccountExportMenu();
+        if (!totalAccounts || totalAccounts.length === 0) {
+            alert("No account records to export.");
+            return;
+        }
+
+        const dateStr = getFormattedTimestamp();
+        let csv = "\uFEFFS.No,Account Number,Customer Name,Available Balance (INR),Account Status,Opened Date\n";
+
+        totalAccounts.forEach((a, idx) => {
+            const custName = `"${(a.CustomerName || '').replace(/"/g, '""')}"`;
+            const bal = Number(a.Balance || 0).toFixed(2);
+            const status = a.Status || "Active";
+            const openDate = a.CreatedDate ? new Date(a.CreatedDate).toLocaleDateString() : "N/A";
+            csv += `${idx + 1},${a.AccountNumber},${custName},${bal},${status},"${openDate}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `Bank_Accounts_Total_List_${dateStr}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function exportAccountsToPDF() {
+        toggleAccountExportMenu();
+        if (!totalAccounts || totalAccounts.length === 0) {
+            alert("No account records to export.");
+            return;
+        }
+
+        const dateStr = getFormattedTimestamp();
+
+        if (window.jspdf && window.jspdf.jsPDF) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            const pageWidth = doc.internal.pageSize.width;
+
+            // Brand Header Banner
+            doc.setFillColor(30, 41, 59);
+            doc.rect(0, 0, pageWidth, 64, 'F');
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text("BANKING MANAGEMENT SYSTEM", 40, 30);
+
+            doc.setFontSize(9.5);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(203, 213, 225);
+            doc.text("OFFICIAL ACCOUNTS DIRECTORY & BALANCE SUMMARY", 40, 48);
+
+            // Sub Header Metadata & Liquidity Total
+            const totalLiquidity = totalAccounts.reduce((sum, a) => sum + Number(a.Balance || 0), 0);
+            doc.setFontSize(9);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`Generated: ${new Date().toLocaleString()}  |  Accounts: ${totalAccounts.length}  |  Total Balance: INR ${totalLiquidity.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, 40, 84);
+
+            // Table Data
+            const headers = [["#", "Account Number", "Customer Name", "Available Balance", "Status", "Opened Date"]];
+            const rows = totalAccounts.map((a, idx) => [
+                idx + 1,
+                a.AccountNumber,
+                a.CustomerName || "-",
+                "INR " + Number(a.Balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }),
+                a.Status || "Active",
+                a.CreatedDate ? new Date(a.CreatedDate).toLocaleDateString() : "-"
+            ]);
+
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: 96,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [217, 119, 6], // Amber/gold
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold',
+                    fontSize: 9
+                },
+                bodyStyles: {
+                    fontSize: 8.5,
+                    textColor: [30, 41, 59]
+                },
+                alternateRowStyles: {
+                    fillColor: [255, 251, 235]
+                },
+                margin: { left: 40, right: 40 },
+                didDrawPage: function(data) {
+                    const pageCount = doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.setTextColor(148, 163, 184);
+                    doc.text(`Page ${data.pageNumber} of ${pageCount} — Confidential Banking Document`, 40, doc.internal.pageSize.height - 20);
+                }
+            });
+
+            doc.save(`Bank_Accounts_Report_${dateStr}.pdf`);
+        } else {
+            window.print();
+        }
+    }
+
+    // Search filter
+    const searchInput = document.getElementById("accountSearch");
+    const accountRows = document.querySelectorAll(".account-row");
+    const noMatchAccount = document.getElementById("noMatchAccount");
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            const query = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            accountRows.forEach(function (row) {
+                const text = row.textContent.toLowerCase();
+                if (query === "" || text.includes(query)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            if (noMatchAccount) {
+                if (visibleCount === 0 && accountRows.length > 0) {
+                    noMatchAccount.classList.remove("hidden");
+                } else {
+                    noMatchAccount.classList.add("hidden");
+                }
+            }
+        });
+    }
+
+</script>
