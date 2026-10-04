@@ -205,27 +205,27 @@ dotnet run --project BankingManagement.Web
 
 > 📖 **Full API Reference**: For exhaustive payload examples, request bodies, query params, and status codes, please see [API_DOCUMENTATION.md](file:///c:/Users/HARSH%20RAI/source/repos/BankingManagement/API_DOCUMENTATION.md).
 
-| Category | Method | Route | Description |
-|---|---|---|---|
-| **Auth** | `POST` | `/api/User/CreateUser` | Register a new user/admin |
-| | `POST` | `/api/User/Login` | Authenticate & get JWT Bearer token |
-| **Customer** | `POST` | `/api/Customer/add` | Create customer(s) |
-| | `GET` | `/api/Customer/GetAll` | Retrieve all customers |
-| | `GET` | `/api/Customer/Get/{id}` | Retrieve customer profile by ID |
-| | `PUT` | `/api/Customer/Update/{id}` | Update customer details |
-| | `DELETE` | `/api/Customer/Delete/{id}` | Delete customer by ID |
-| **Account** | `POST` | `/api/Account/add` | Open a new bank account |
-| | `GET` | `/api/Account/GetAll` | Retrieve all accounts |
-| | `GET` | `/api/Account/GetById/{accountId}` | Retrieve bank account details |
-| | `PUT` | `/api/Account/Update/{accountId}` | Update account balance/status |
-| **Transactions** | `POST` | `/api/Transaction/Deposit` | Deposit money & send email alert |
-| | `POST` | `/api/Transaction/Withdraw` | Withdraw funds & send email alert |
-| | `POST` | `/api/Transaction/Transfer` | Transfer funds & send email alert |
-| | `GET` | `/api/Transaction/TransHistory/{accountId}` | View transaction statement |
-| **Email Logs** | `GET` | `/api/EmailLog/GetAll` | Retrieve sent email logs |
-| | `GET` | `/api/EmailLog/{id}` | Retrieve specific email log entry |
-| **Dashboard** | `GET` | `/api/Dashboard/Stats` | Aggregate dashboard KPI metrics |
-| **AI Assistant** | `POST` | `/api/Chat/Ask` | AI assistant inquiry |
+| Category | Method | Route | Auth | Description |
+|---|---|---|---|---|
+| **Auth** | `POST` | `/api/User/CreateUser` | Anonymous | Register a new user/admin |
+| | `POST` | `/api/User/Login` | Anonymous | Authenticate & get JWT Bearer token |
+| **Customer** | `POST` | `/api/Customer/add` | 🔒 Bearer | Create customer(s) |
+| | `GET` | `/api/Customer/GetAll` | 🔒 Bearer | Retrieve all customers |
+| | `GET` | `/api/Customer/Get/{id}` | 🔒 Bearer | Retrieve customer profile by ID |
+| | `PUT` | `/api/Customer/Update/{id}` | 🔒 Bearer | Update customer details |
+| | `DELETE` | `/api/Customer/Delete/{id}` | 🔒 Bearer | Delete customer profile |
+| **Account** | `POST` | `/api/Account/add` | 🔒 Bearer | Open a new bank account |
+| | `GET` | `/api/Account/GetAll` | 🔒 Bearer | Retrieve all accounts |
+| | `GET` | `/api/Account/GetById/{accountId}` | 🔒 Bearer | Retrieve bank account details |
+| | `PUT` | `/api/Account/Update/{accountId}` | 🔒 Bearer | Update account balance/status |
+| **Transactions** | `POST` | `/api/Transaction/Deposit` | 🔒 Bearer | Deposit money & send email alert |
+| | `POST` | `/api/Transaction/Withdraw` | 🔒 Bearer | Withdraw funds & send email alert |
+| | `POST` | `/api/Transaction/Transfer` | 🔒 Bearer | Transfer funds & send email alert |
+| | `GET` | `/api/Transaction/TransHistory/{accountId}` | 🔒 Bearer | View transaction statement |
+| **Email Logs** | `GET` | `/api/EmailLog/GetAll` | 🔒 Bearer | Retrieve sent email logs |
+| | `GET` | `/api/EmailLog/{id}` | 🔒 Bearer | Retrieve specific email log entry |
+| **Dashboard** | `GET` | `/api/Dashboard/Stats` | 🔒 Bearer | Aggregate dashboard KPI metrics |
+| **AI Assistant** | `POST` | `/api/Chat/Ask` | 🔒 Bearer | AI assistant inquiry |
 
 ---
 

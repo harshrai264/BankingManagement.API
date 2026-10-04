@@ -33,12 +33,12 @@ To obtain a token, call the [User Login](#2-user-login) endpoint.
 | | `GET` | `/api/Account/GetAll` | 🔒 Bearer | Retrieve all accounts |
 | | `GET` | `/api/Account/GetById/{accountId}` | 🔒 Bearer | Get bank account details by ID |
 | | `PUT` | `/api/Account/Update/{accountId}` | 🔒 Bearer | Update account status or balance |
-| **Transactions** | `POST` | `/api/Transaction/Deposit` | None | Deposit funds into an account |
-| | `POST` | `/api/Transaction/Withdraw` | None | Withdraw funds from an account |
-| | `POST` | `/api/Transaction/Transfer` | None | Transfer funds between two accounts |
-| | `GET` | `/api/Transaction/TransHistory/{accountId}` | None | Retrieve statement/history for an account |
-| **Email Logs** | `GET` | `/api/EmailLog/GetAll` | None | Retrieve all transactional email logs |
-| | `GET` | `/api/EmailLog/{id}` | None | Retrieve specific email log entry |
+| **Transactions** | `POST` | `/api/Transaction/Deposit` | 🔒 Bearer | Deposit funds into an account |
+| | `POST` | `/api/Transaction/Withdraw` | 🔒 Bearer | Withdraw funds from an account |
+| | `POST` | `/api/Transaction/Transfer` | 🔒 Bearer | Transfer funds between two accounts |
+| | `GET` | `/api/Transaction/TransHistory/{accountId}` | 🔒 Bearer | Retrieve statement/history for an account |
+| **Email Logs** | `GET` | `/api/EmailLog/GetAll` | 🔒 Bearer | Retrieve all transactional email logs |
+| | `GET` | `/api/EmailLog/{id}` | 🔒 Bearer | Retrieve specific email log entry |
 | **Dashboard** | `GET` | `/api/Dashboard/Stats` | 🔒 Bearer | Retrieve KPI metrics and recent transactions |
 | **AI Assistant** | `POST` | `/api/Chat/Ask` | 🔒 Bearer | Send question to AI banking assistant |
 
@@ -340,8 +340,10 @@ Credits an account with the specified amount.
 
 - **Method**: `POST`
 - **Endpoint**: `/api/Transaction/Deposit`
-- **Authorization**: None (or as configured)
-- **Request Headers**: `Content-Type: application/json`
+- **Authorization**: 🔒 Bearer Token
+- **Request Headers**:
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
 
 #### Request Body (`DepositDto`)
 ```json
@@ -362,6 +364,7 @@ Credits an account with the specified amount.
 - **`200 OK`**: `"Amount deposited Successfully"`
 - **`404 Not Found`**: `"Account not found"`
 - **`400 Bad Request`**: Validation error
+- **`401 Unauthorized`**: Missing or invalid Bearer token
 
 ---
 
@@ -370,8 +373,10 @@ Debits an account with the specified amount, verifying sufficient balance.
 
 - **Method**: `POST`
 - **Endpoint**: `/api/Transaction/Withdraw`
-- **Authorization**: None
-- **Request Headers**: `Content-Type: application/json`
+- **Authorization**: 🔒 Bearer Token
+- **Request Headers**:
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
 
 #### Request Body (`WithdrawalDto`)
 ```json
@@ -392,6 +397,7 @@ Debits an account with the specified amount, verifying sufficient balance.
 - **`200 OK`**: `"Amount Withdrawn Successfully"`
 - **`400 Bad Request`**: `"Insufficient balance."` or `"Withdrawal amount must be greater than zero"`
 - **`404 Not Found`**: `"Account not found"`
+- **`401 Unauthorized`**: Missing or invalid Bearer token
 
 ---
 
@@ -400,8 +406,10 @@ Transfers funds atomically from one account to another.
 
 - **Method**: `POST`
 - **Endpoint**: `/api/Transaction/Transfer`
-- **Authorization**: None
-- **Request Headers**: `Content-Type: application/json`
+- **Authorization**: 🔒 Bearer Token
+- **Request Headers**:
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
 
 #### Request Body (`TransferDto`)
 ```json
@@ -424,6 +432,7 @@ Transfers funds atomically from one account to another.
 - **`200 OK`**: `"Transfer successful."`
 - **`400 Bad Request`**: `"Insufficient balance in source account."` or `"Cannot transfer to the same account."`
 - **`404 Not Found`**: `"From account or To account not found."`
+- **`401 Unauthorized`**: Missing or invalid Bearer token
 
 ---
 
@@ -432,7 +441,8 @@ Retrieves past transactions for a specific account.
 
 - **Method**: `GET`
 - **Endpoint**: `/api/Transaction/TransHistory/{accountId}`
-- **Authorization**: None
+- **Authorization**: 🔒 Bearer Token
+- **Request Headers**: `Authorization: Bearer <token>`
 - **Route Parameter**: `accountId` (`int`) - Target account ID
 
 #### Responses
@@ -457,6 +467,7 @@ Retrieves past transactions for a specific account.
     }
   ]
   ```
+- **`401 Unauthorized`**: Missing or invalid Bearer token
 
 ---
 
@@ -467,7 +478,8 @@ Retrieves all sent transaction notification email records with delivery statuses
 
 - **Method**: `GET`
 - **Endpoint**: `/api/EmailLog/GetAll`
-- **Authorization**: None
+- **Authorization**: 🔒 Bearer Token
+- **Request Headers**: `Authorization: Bearer <token>`
 
 #### Responses
 - **`200 OK`**:
@@ -490,17 +502,21 @@ Retrieves all sent transaction notification email records with delivery statuses
     }
   ]
   ```
+- **`401 Unauthorized`**: Missing or invalid Bearer token
 
 ---
 
 ### 5.2 Get Email Log By ID
 - **Method**: `GET`
 - **Endpoint**: `/api/EmailLog/{id}`
+- **Authorization**: 🔒 Bearer Token
+- **Request Headers**: `Authorization: Bearer <token>`
 - **Route Parameter**: `id` (`int`) - Email log record ID
 
 #### Responses
 - **`200 OK`**: Single `EmailLog` object
 - **`404 Not Found`**: `"Email log with ID {id} not found."`
+- **`401 Unauthorized`**: Missing or invalid Bearer token
 
 ---
 
