@@ -21,15 +21,17 @@ namespace BankingManagement.Services
     public class TransactionService : ITransactionService
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public TransactionService(AppDbContext context)
+        public TransactionService(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
         // deposit
         public async Task<bool> Deposit(DepositDto depositDto)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountId == depositDto.AccountId);
+            var account = await _context.Accounts.Include(a => a.Customer).FirstOrDefaultAsync(a => a.AccountId == depositDto.AccountId);
 
             if (account == null)
             {
@@ -61,13 +63,28 @@ namespace BankingManagement.Services
             _context.Transactions.Add(transction);
             await _context.SaveChangesAsync();
 
+            // Send Email Notification to Customer
+            if (account.Customer != null && !string.IsNullOrWhiteSpace(account.Customer.Email))
+            {
+                await _emailService.SendTransactionEmailAsync(
+                    recipientEmail: account.Customer.Email,
+                    recipientName: account.Customer.Name,
+                    transactionType: "Deposit",
+                    accountNumber: account.AccountNumber,
+                    accountId: account.AccountId,
+                    amount: depositDto.Amount,
+                    balanceAfter: account.Balance,
+                    description: depositDto.Description
+                );
+            }
+
             return true;
         }
 
         //withdraw
         public async Task<bool> Withdraw(WithdrawalDto withdrawalDto)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountId == withdrawalDto.AccountId);
+            var account = await _context.Accounts.Include(a => a.Customer).FirstOrDefaultAsync(a => a.AccountId == withdrawalDto.AccountId);
 
             if (account == null)
             {
@@ -83,11 +100,6 @@ namespace BankingManagement.Services
             {
                 throw new Exception("Account is inactive. Withdrawal is not allowed.");
             }
-
-            //if (withdrawalDto.Amount <= 0)
-            //{
-            //    return false;
-            //}
 
             if (withdrawalDto.Amount > account.Balance)
             {
@@ -107,18 +119,32 @@ namespace BankingManagement.Services
 
             _context.Transactions.Add(transction);
             await _context.SaveChangesAsync();
-            return true;
 
+            // Send Email Notification to Customer
+            if (account.Customer != null && !string.IsNullOrWhiteSpace(account.Customer.Email))
+            {
+                await _emailService.SendTransactionEmailAsync(
+                    recipientEmail: account.Customer.Email,
+                    recipientName: account.Customer.Name,
+                    transactionType: "Withdraw",
+                    accountNumber: account.AccountNumber,
+                    accountId: account.AccountId,
+                    amount: withdrawalDto.Amount,
+                    balanceAfter: account.Balance,
+                    description: withdrawalDto.Description
+                );
+            }
+
+            return true;
         }
 
         // transfer from one account to other
 
         public async Task<bool> Transfer(TransferDto transferDto)
-       
         {
-            var FromAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountId == transferDto.FromAccountId);
+            var FromAccount = await _context.Accounts.Include(a => a.Customer).FirstOrDefaultAsync(a => a.AccountId == transferDto.FromAccountId);
 
-            var ToAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.AccountId == transferDto.ToAccountId);
+            var ToAccount = await _context.Accounts.Include(a => a.Customer).FirstOrDefaultAsync(a => a.AccountId == transferDto.ToAccountId);
 
             if (FromAccount == null || ToAccount == null)
             {
@@ -181,6 +207,39 @@ namespace BankingManagement.Services
             _context.Transactions.Add(ToTransction);
 
             await _context.SaveChangesAsync();
+
+            // Email to sender
+            if (FromAccount.Customer != null && !string.IsNullOrWhiteSpace(FromAccount.Customer.Email))
+            {
+                await _emailService.SendTransactionEmailAsync(
+                    recipientEmail: FromAccount.Customer.Email,
+                    recipientName: FromAccount.Customer.Name,
+                    transactionType: "Transfer_Debit",
+                    accountNumber: FromAccount.AccountNumber,
+                    accountId: FromAccount.AccountId,
+                    amount: transferDto.Amount,
+                    balanceAfter: FromAccount.Balance,
+                    description: transferDto.Description,
+                    relatedAccountNumber: ToAccount.AccountNumber
+                );
+            }
+
+            // Email to receiver
+            if (ToAccount.Customer != null && !string.IsNullOrWhiteSpace(ToAccount.Customer.Email))
+            {
+                await _emailService.SendTransactionEmailAsync(
+                    recipientEmail: ToAccount.Customer.Email,
+                    recipientName: ToAccount.Customer.Name,
+                    transactionType: "Transfer_Credit",
+                    accountNumber: ToAccount.AccountNumber,
+                    accountId: ToAccount.AccountId,
+                    amount: transferDto.Amount,
+                    balanceAfter: ToAccount.Balance,
+                    description: transferDto.Description,
+                    relatedAccountNumber: FromAccount.AccountNumber
+                );
+            }
+
             return true;
         }
 

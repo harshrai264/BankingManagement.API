@@ -25,15 +25,35 @@ namespace BankingManagement.Controllers
             {
                 var totalCustomers = await _context.Customers.CountAsync();
                 var totalAccounts = await _context.Accounts.CountAsync();
+                var totalActiveAccounts = await _context.Accounts.CountAsync(a => a.Status == "Active");
                 var totalAmount = await _context.Accounts.SumAsync(a => (decimal?)a.Balance) ?? 0m;
                 var totalTransactions = await _context.Transactions.CountAsync();
+
+                var recentTransactions = await _context.Transactions
+                    .Include(t => t.Account)
+                    .OrderByDescending(t => t.TransactionDate)
+                    .Take(5)
+                    .Select(t => new RecentTransactionDto
+                    {
+                        TransactionId = t.TransactionId,
+                        AccountId = t.AccountId,
+                        AccountNumber = t.Account != null ? t.Account.AccountNumber : 0,
+                        TransactionType = t.TransactionType,
+                        Amount = t.Amount,
+                        BalanceAfterTransaction = t.BalanceAfterTransaction,
+                        TransactionDate = t.TransactionDate,
+                        Description = t.Description ?? string.Empty
+                    })
+                    .ToListAsync();
 
                 var stats = new DashboardStatsDto
                 {
                     TotalCustomers = totalCustomers,
                     TotalAccounts = totalAccounts,
+                    TotalActiveAccounts = totalActiveAccounts,
                     TotalAmount = totalAmount,
-                    TotalTransactions = totalTransactions
+                    TotalTransactions = totalTransactions,
+                    RecentTransactions = recentTransactions
                 };
 
                 return Ok(stats);

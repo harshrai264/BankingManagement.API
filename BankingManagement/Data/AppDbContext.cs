@@ -1,4 +1,4 @@
-﻿
+
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using BankingManagement.Models;
@@ -20,6 +20,7 @@ namespace BankingManagement.Data
             public DbSet<AuditLog> Auditlogs { get; set; }
             public DbSet<AllUser> AllUsers { get; set; } 
             public DbSet<Transaction> Transactions { get; set; }
+            public DbSet<EmailLog> EmailLogs { get; set; }
 
 
         // below is used becuz when creating migration "No store type was specified for the decimal property 'Balance' on entity type 'Account'.
@@ -53,6 +54,10 @@ namespace BankingManagement.Data
                 .WithMany(a => a.Transactions)
                 .HasForeignKey(t => t.AccountId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<EmailLog>()
+                .Property(e => e.Amount)
+                .HasPrecision(18, 2);
         }
 
 

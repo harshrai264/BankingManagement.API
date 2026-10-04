@@ -1,846 +1,920 @@
 @model BankingManagement.Web.Models.DashboardViewModel
 
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Banking Management";
+    ViewData["HideNavbar"] = true;
 }
 
 <style>
+    :root {
+        --bank-primary: #2563eb;
+        --bank-primary-dark: #1d4ed8;
+        --bank-accent: #3b82f6;
+        --bank-accent-light: #eff6ff;
+        --bank-slate: #334155;
+        --bank-emerald: #10b981;
+        --bank-emerald-light: #ecfdf5;
+        --bank-amber: #f59e0b;
+        --bank-amber-light: #fffbeb;
+        --bank-purple: #8b5cf6;
+        --bank-purple-light: #f5f3ff;
+        --bank-border: #e2e8f0;
+        --bank-bg: #f8fafc;
+        --bank-card-bg: #ffffff;
+    }
+
     body {
-        background: #f5f7fb;
-        color: #172b4d;
+        background-color: var(--bank-bg);
+        color: #1e293b;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
-    .dashboard-container {
-        max-width: 1280px;
+    .banking-console {
+        max-width: 1360px;
         margin: 0 auto;
-        padding: 35px 25px 50px;
+        padding: 16px 24px 44px;
     }
 
-    /* =========================
-           HEADER
-           ========================= */
-
-    .dashboard-header {
+    /* ======================================================
+       HEADER BANNER (MODERN FINTECH BLUE GRADIENT)
+       ====================================================== */
+    .bank-header-banner {
+        background: linear-gradient(135deg, #1e40af 0%, #2563eb 55%, #3b82f6 100%);
+        border-radius: 18px;
+        padding: 22px 28px;
+        color: white;
+        margin-bottom: 22px;
+        box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.28), 0 8px 10px -6px rgba(37, 99, 235, 0.2);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 25px;
-        margin-bottom: 35px;
+        flex-wrap: wrap;
+        gap: 16px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .header-left {
+    .bank-header-banner::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        right: -40px;
+        width: 320px;
+        height: 320px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .bank-header-left {
         display: flex;
         align-items: center;
-        gap: 18px;
+        gap: 16px;
+        position: relative;
+        z-index: 1;
     }
 
-    .bank-logo {
-        width: 62px;
-        height: 62px;
-        border-radius: 18px;
+    .bank-emblem {
+        width: 56px;
+        height: 56px;
+        border-radius: 15px;
+        background: #ffffff;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #2563eb, #4f46e5);
-        color: white;
-        font-size: 29px;
-        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.22);
+        padding: 6px;
+        overflow: hidden;
+        flex-shrink: 0;
     }
 
-    .welcome-text {
-        font-size: 14px;
-        color: #7b8794;
-        margin-bottom: 3px;
+    .bank-emblem img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
     }
 
-    .dashboard-title {
-        font-size: 29px;
+    .bank-brand-title {
+        font-size: 24px;
         font-weight: 700;
-        margin: 0;
-        color: #172b4d;
+        margin: 0 0 4px;
+        color: #ffffff;
+        letter-spacing: -0.01em;
     }
 
-    .dashboard-subtitle {
-        margin: 5px 0 0;
-        color: #7b8794;
-        font-size: 14px;
-    }
-
-    .header-right {
+    .bank-meta-row {
         display: flex;
         align-items: center;
         gap: 12px;
+        font-size: 13px;
+        color: #dbeafe;
+        flex-wrap: wrap;
     }
 
-    .date-box {
-        background: white;
-        border: 1px solid #e6eaf0;
-        padding: 11px 16px;
-        border-radius: 12px;
+    .sys-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(16, 185, 129, 0.25);
+        border: 1px solid rgba(167, 243, 208, 0.4);
+        color: #ecfdf5;
+        font-weight: 600;
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 9999px;
+    }
+
+    .sys-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background-color: #34d399;
+        box-shadow: 0 0 8px #34d399;
+    }
+
+    .bank-header-right {
         display: flex;
         align-items: center;
-        gap: 9px;
-        font-size: 14px;
-        color: #52606d;
-        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+        gap: 12px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1;
     }
 
-        .date-box i {
-            color: #2563eb;
-            font-size: 16px;
-        }
+    .live-clock-card {
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        backdrop-filter: blur(8px);
+        padding: 8px 16px;
+        border-radius: 12px;
+        text-align: right;
+    }
+
+    .clock-time {
+        font-size: 14px;
+        font-weight: 700;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        justify-content: flex-end;
+    }
+
+    .clock-time i {
+        color: #bfdbfe;
+    }
+
+    .clock-date {
+        font-size: 11px;
+        color: #dbeafe;
+    }
 
     .signout-btn {
-        text-decoration: none;
-        background: white;
-        border: 1px solid #e6eaf0;
-        color: #52606d;
-        padding: 11px 16px;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 500;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 7px;
+        padding: 9px 18px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(8px);
+        text-decoration: none;
         transition: all 0.2s ease;
     }
 
-        .signout-btn:hover {
-            background: #fff5f5;
-            color: #dc3545;
-            border-color: #f1caca;
-        }
-
-
-    /* =========================
-           STATISTICS
-           ========================= */
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        margin-bottom: 38px;
+    .signout-btn:hover {
+        background: rgba(239, 68, 68, 0.28);
+        border-color: rgba(254, 202, 202, 0.5);
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }
 
-    .stat-card {
-        background: white;
-        border: 1px solid #e8edf3;
-        border-radius: 18px;
-        padding: 23px;
+    /* ======================================================
+       QUICK ACTIONS RIBBON (FRIENDLY & COMPACT)
+       ====================================================== */
+    .command-ribbon {
+        background: var(--bank-card-bg);
+        border: 1px solid var(--bank-border);
+        border-radius: 16px;
+        padding: 12px 20px;
+        margin-bottom: 22px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .ribbon-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .ribbon-label i {
+        color: var(--bank-primary);
+        font-size: 16px;
+    }
+
+    .ribbon-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .action-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 14px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #334155;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .action-chip:hover {
+        background: #ffffff;
+        border-color: #93c5fd;
+        color: var(--bank-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    }
+
+    .action-chip.deposit:hover i { color: var(--bank-emerald); }
+    .action-chip.withdraw:hover i { color: var(--bank-amber); }
+    .action-chip.transfer:hover i { color: var(--bank-purple); }
+
+    /* ======================================================
+       KPI SUMMARY METRICS (4 COMPACT CARDS)
+       ====================================================== */
+    .kpi-matrix {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    @@media (max-width: 1024px) {
+        .kpi-matrix { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @@media (max-width: 580px) {
+        .kpi-matrix { grid-template-columns: 1fr; }
+    }
+
+    .kpi-card {
+        background: var(--bank-card-bg);
+        border: 1px solid var(--bank-border);
+        border-radius: 16px;
+        padding: 18px 22px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+        transition: all 0.2s ease;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.05);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
-        }
-
-    .stat-label {
-        color: #7b8794;
-        font-size: 14px;
-        margin-bottom: 7px;
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(37, 99, 235, 0.08);
+        border-color: #bfdbfe;
     }
 
-    .stat-value {
-        font-size: 27px;
+    .kpi-meta {
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 4px;
+    }
+
+    .kpi-value {
+        font-size: 24px;
         font-weight: 700;
-        color: #172b4d;
+        color: #0f172a;
+        margin-bottom: 4px;
+        line-height: 1.2;
     }
 
-    .stat-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 15px;
+    .kpi-subtext {
+        font-size: 11.5px;
+        color: #64748b;
+    }
+
+    .kpi-icon-wrap {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 23px;
+        font-size: 20px;
+        flex-shrink: 0;
     }
 
-    .customer-stat .stat-icon {
-        background: #eaf2ff;
-        color: #2563eb;
+    .kpi-card.balance .kpi-icon-wrap { background: var(--bank-emerald-light); color: var(--bank-emerald); }
+    .kpi-card.accounts .kpi-icon-wrap { background: #eff6ff; color: var(--bank-accent); }
+    .kpi-card.customers .kpi-icon-wrap { background: var(--bank-purple-light); color: var(--bank-purple); }
+    .kpi-card.transactions .kpi-icon-wrap { background: #f0f9ff; color: #0284c7; }
+
+    /* ======================================================
+       MAIN TWO-COLUMN WORKSPACE
+       ====================================================== */
+    .workspace-grid {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: 20px;
+        align-items: start;
     }
 
-    .amount-stat .stat-icon {
-        background: #eafaf2;
-        color: #16a34a;
+    @@media (max-width: 960px) {
+        .workspace-grid { grid-template-columns: 1fr; }
     }
-
-
-    /* =========================
-           SECTION
-           ========================= */
 
     .section-title {
-        font-size: 19px;
+        font-size: 16px;
         font-weight: 700;
-        margin-bottom: 18px;
-        color: #172b4d;
+        color: #0f172a;
+        margin: 0 0 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-
-    /* =========================
-           FEATURE CARDS
-           ========================= */
-
-    .modules-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-        gap: 18px;
+    .section-title i {
+        color: var(--bank-primary);
     }
 
-    .module-card {
-        position: relative;
-        overflow: hidden;
-        background: white;
-        border: 1px solid #e8edf3;
-        border-radius: 18px;
-        padding: 24px 20px 20px;
-        min-height: 270px;
+    /* Modules List */
+    .modules-list {
         display: flex;
         flex-direction: column;
-        box-shadow: 0 7px 22px rgba(15, 23, 42, 0.045);
-        transition: all 0.25s ease;
+        gap: 14px;
     }
 
-        .module-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 32px rgba(15, 23, 42, 0.10);
-        }
-
-        .module-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-        }
-
-    .customers-card::before {
-        background: #2563eb;
+    .module-item-card {
+        background: var(--bank-card-bg);
+        border: 1px solid var(--bank-border);
+        border-radius: 16px;
+        padding: 20px 22px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+        transition: all 0.2s ease;
     }
 
-    .accounts-card::before {
-        background: #f59e0b;
+    .module-item-card:hover {
+        border-color: #bfdbfe;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.08);
     }
 
-    .transactions-card::before {
-        background: #7c3aed;
+    .module-card-top {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 12px;
     }
 
-    .payments-card::before {
-        background: #16a34a;
-    }
-
-    .reports-card::before {
-        background: #0891b2;
-    }
-
-    .ai-card::before {
-        background: linear-gradient(135deg, #8b5cf6, #ec4899);
-    }
-
-
-    /* =========================
-           FEATURE ICONS
-           ========================= */
-
-    .module-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+    .module-icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 21px;
-        margin-bottom: 18px;
+        flex-shrink: 0;
     }
 
-    .customers-card .module-icon {
-        background: #eaf2ff;
-        color: #2563eb;
-    }
+    .module-icon-box.customer { background: #eff6ff; color: #2563eb; }
+    .module-icon-box.account { background: #fffbeb; color: #d97706; }
+    .module-icon-box.transaction { background: #f5f3ff; color: #7c3aed; }
 
-    .accounts-card .module-icon {
-        background: #fff7e6;
-        color: #f59e0b;
-    }
-
-    .transactions-card .module-icon {
-        background: #f1eaff;
-        color: #7c3aed;
-    }
-
-    .payments-card .module-icon {
-        background: #eafaf2;
-        color: #16a34a;
-    }
-
-    .reports-card .module-icon {
-        background: #e6f8fb;
-        color: #0891b2;
-    }
-
-    .ai-card .module-icon {
-        background: #f5f3ff;
-        color: #8b5cf6;
-    }
-
-
-    /* =========================
-           FEATURE TEXT
-           ========================= */
-
-    .module-title {
-        font-size: 17px;
+    .module-heading {
+        font-size: 16px;
         font-weight: 700;
-        margin-bottom: 7px;
-        color: #172b4d;
+        color: #0f172a;
+        margin: 0 0 2px;
     }
 
     .module-description {
-        color: #7b8794;
-        font-size: 13px;
-        line-height: 1.6;
+        font-size: 12.5px;
+        color: #64748b;
         margin: 0;
     }
 
+    /* ======================================================
+       BALANCED & USER-FRIENDLY MODULE BUTTONS
+       ====================================================== */
+    .module-btns-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 14px;
+    }
 
-    /* =========================
-           FEATURE BUTTONS
-           ========================= */
+    @@media (max-width: 480px) {
+        .module-btns-row {
+            grid-template-columns: 1fr;
+        }
+    }
 
-    .module-btn {
-        margin-top: auto;
-        width: 100%;
-        padding: 10px 13px;
+    .module-btn-main {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #ffffff;
+        border: 1px solid rgba(37, 99, 235, 0.3);
         border-radius: 10px;
-        border: none;
+        font-size: 13px;
+        font-weight: 600;
         text-decoration: none;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.22);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .module-btn-main:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    }
+
+    .module-btn-sub {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        background: #ffffff;
+        color: #2563eb;
+        border: 1.5px solid #bfdbfe;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 1px 3px rgba(37, 99, 235, 0.05);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .module-btn-sub:hover {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Recent Transactions Card */
+    .transactions-card {
+        background: var(--bank-card-bg);
+        border: 1px solid var(--bank-border);
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    }
+
+    .tx-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .tx-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .tx-card-title i {
+        color: var(--bank-accent);
+    }
+
+    .tx-view-all {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--bank-accent);
+        text-decoration: none;
+    }
+
+    .tx-view-all:hover {
+        text-decoration: underline;
+    }
+
+    .tx-feed-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .tx-feed-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 10px;
+        transition: all 0.15s ease;
+    }
+
+    .tx-feed-row:hover {
+        background: #ffffff;
+        border-color: #e2e8f0;
+    }
+
+    .tx-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .tx-icon-pill {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 7px;
+        font-size: 14px;
+    }
+
+    .tx-icon-pill.deposit { background: #dcfce7; color: #15803d; }
+    .tx-icon-pill.withdrawal { background: #fee2e2; color: #b91c1c; }
+    .tx-icon-pill.transfer { background: #ede9fe; color: #6d28d9; }
+
+    .tx-type-text {
         font-size: 13px;
         font-weight: 600;
-        transition: all 0.2s ease;
+        color: #0f172a;
+        margin: 0;
     }
 
-        .module-btn i {
-            font-size: 14px;
-        }
-
-
-    /* Customers */
-    .customers-btn {
-        background: #eaf2ff;
-        color: #2563eb;
+    .tx-date-text {
+        font-size: 11px;
+        color: #64748b;
+        margin: 0;
     }
 
-        .customers-btn:hover {
-            background: #2563eb;
-            color: white;
-        }
-
-
-    /* Accounts */
-    .accounts-btn {
-        background: #fff7e6;
-        color: #d97706;
+    .tx-right {
+        text-align: right;
     }
 
-        .accounts-btn:hover {
-            background: #f59e0b;
-            color: white;
-        }
-
-
-    /* Transactions */
-    .transactions-btn {
-        background: #f1eaff;
-        color: #7c3aed;
+    .tx-amount-text {
+        font-size: 13.5px;
+        font-weight: 700;
     }
 
-        .transactions-btn:hover {
-            background: #7c3aed;
-            color: white;
-        }
+    .tx-amount-text.positive { color: #15803d; }
+    .tx-amount-text.negative { color: #b91c1c; }
+    .tx-amount-text.neutral { color: #2563eb; }
 
-
-    /* Payments */
-    .payments-btn {
-        background: #eafaf2;
-        color: #16a34a;
+    .tx-acct-text {
+        font-size: 11px;
+        color: #64748b;
+        font-family: monospace;
     }
 
-        .payments-btn:hover {
-            background: #16a34a;
-            color: white;
-        }
-
-
-    /* Reports */
-    .reports-btn {
-        background: #e6f8fb;
-        color: #0891b2;
+    .empty-tx-box {
+        text-align: center;
+        padding: 28px 14px;
+        color: #94a3b8;
     }
 
-        .reports-btn:hover {
-            background: #0891b2;
-            color: white;
-        }
-
-    /* AI Assistant */
-    .ai-btn {
-        background: #f5f3ff;
-        color: #7c3aed;
-    }
-
-        .ai-btn:hover {
-            background: linear-gradient(135deg, #7c3aed, #9333ea);
-            color: white;
-        }
-
-
-    /* =========================
-           RESPONSIVE
-           ========================= */
-
-    @@media (max-width: 1150px) {
-
-        .modules-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    @@media (max-width: 800px) {
-
-        .dashboard-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .header-right {
-            width: 100%;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .modules-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @@media (max-width: 550px) {
-
-        .dashboard-container {
-            padding: 25px 15px;
-        }
-
-        .header-left {
-            align-items: flex-start;
-        }
-
-        .bank-logo {
-            width: 52px;
-            height: 52px;
-            font-size: 23px;
-        }
-
-        .dashboard-title {
-            font-size: 23px;
-        }
-
-        .header-right {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .date-box,
-        .signout-btn {
-            justify-content: center;
-        }
-
-        .modules-grid {
-            grid-template-columns: 1fr;
-        }
+    .empty-tx-box i {
+        font-size: 28px;
+        color: #cbd5e1;
+        margin-bottom: 6px;
+        display: block;
     }
 </style>
 
+<div class="banking-console">
 
-<div class="dashboard-container">
-
-
-    <!-- =========================
-         HEADER
-         ========================= -->
-
-    <div class="dashboard-header">
-
-        <div class="header-left">
-
-            <div class="bank-logo">
-                <i class="bi bi-bank2"></i>
+    <!-- ======================================================
+         1. CLEAN HEADER (COMPACT & USER-FRIENDLY)
+         ====================================================== -->
+    <div class="bank-header-banner">
+        <div class="bank-header-left">
+            <div class="bank-emblem">
+                <img src="~/images/bank-logo.png" alt="Banking Management Logo" />
             </div>
-
             <div>
-
-                <div class="welcome-text">
-                    Welcome back 👋
+                <h1 class="bank-brand-title">Banking Management</h1>
+                <div class="bank-meta-row">
+                    <span>Manage customers, accounts, and transactions</span>
+                    <span>•</span>
+                    <span class="sys-status-badge">
+                        <span class="sys-status-dot"></span>
+                        System Online
+                    </span>
                 </div>
-
-                <h1 class="dashboard-title">
-                    Banking Management
-                </h1>
-
-                <p class="dashboard-subtitle">
-                    Manage customers, accounts and banking operations from one place.
-                </p>
-
             </div>
-
         </div>
 
-
-        <div class="header-right">
-
-            <div class="date-box">
-
-                <i class="bi bi-calendar-event"></i>
-
-                <span>
-                    @DateTime.Now.ToString("dd MMM yyyy")
-                </span>
-
+        <div class="bank-header-right">
+            <div class="live-clock-card">
+                <div class="clock-time">
+                    <i class="bi bi-clock text-primary"></i>
+                    <span id="liveClockDisplay">--:--:--</span>
+                </div>
+                <div class="clock-date" id="liveDateDisplay">Banking Session</div>
             </div>
 
-
-            <a asp-controller="Auth"
-               asp-action="Login"
-               class="signout-btn">
-
+            <a asp-controller="Auth" asp-action="Login" class="signout-btn" title="Sign out of Banking Management">
                 <i class="bi bi-box-arrow-right"></i>
-
                 Sign Out
-
             </a>
-
         </div>
-
     </div>
 
-
-
-    <!-- =========================
-         STATISTICS
-         ========================= -->
-
-    <div class="stats-grid">
-
-
-        <!-- Total Customers -->
-
-        <div class="stat-card customer-stat">
-
-            <div>
-
-                <div class="stat-label">
-                    Total Customers
-                </div>
-
-                <div class="stat-value">
-                    @(Model?.TotalCustomers ?? 0)
-                </div>
-
-            </div>
-
-
-            <div class="stat-icon">
-
-                <i class="bi bi-people-fill"></i>
-
-            </div>
-
+    <!-- ======================================================
+         2. QUICK ACTIONS RIBBON
+         ====================================================== -->
+    <div class="command-ribbon">
+        <div class="ribbon-label">
+            <i class="bi bi-lightning-charge-fill"></i>
+            <span>Quick Actions</span>
         </div>
 
+        <div class="ribbon-actions">
+            <a asp-controller="Transaction" asp-action="Deposit" class="action-chip deposit">
+                <i class="bi bi-box-arrow-in-down-left"></i>
+                Deposit
+            </a>
+            <a asp-controller="Transaction" asp-action="Withdraw" class="action-chip withdraw">
+                <i class="bi bi-box-arrow-up-right"></i>
+                Withdraw
+            </a>
+            <a asp-controller="Transaction" asp-action="Transfer" class="action-chip transfer">
+                <i class="bi bi-arrow-left-right"></i>
+                Transfer
+            </a>
+            <a asp-controller="Transaction" asp-action="History" class="action-chip">
+                <i class="bi bi-receipt"></i>
+                History
+            </a>
+            <a asp-controller="NotificationLog" asp-action="Index" class="action-chip">
+                <i class="bi bi-envelope-paper-heart-fill text-primary"></i>
+                Notification Logs
+            </a>
+            <a asp-controller="Account" asp-action="Add" class="action-chip">
+                <i class="bi bi-credit-card-2-front"></i>
+                New Account
+            </a>
+            <a asp-controller="Customer" asp-action="Add" class="action-chip">
+                <i class="bi bi-person-plus"></i>
+                Add Customer
+            </a>
+        </div>
+    </div>
 
+    <!-- ======================================================
+         3. 4 KEY STATISTICS CARDS (COMPACT ROW)
+         ====================================================== -->
+    <div class="kpi-matrix">
 
-        <!-- Total Amount -->
-
-        <div class="stat-card amount-stat">
-
+        <!-- Total Balance -->
+        <div class="kpi-card balance">
             <div>
-
-                <div class="stat-label">
-                    Total Amount
-                </div>
-
-                <div class="stat-value" title="₹@((Model?.TotalAmount ?? 0m).ToString("N2"))">
+                <div class="kpi-meta">Total Balance</div>
+                <div class="kpi-value" title="₹@((Model?.TotalAmount ?? 0m).ToString("N2"))">
                     @(Model?.FormattedTotalAmount ?? "₹0.00")
                 </div>
-
+                <div class="kpi-subtext">Across all accounts</div>
             </div>
-
-
-            <div class="stat-icon">
-
-                <i class="bi bi-wallet2"></i>
-
+            <div class="kpi-icon-wrap">
+                <i class="bi bi-cash-stack"></i>
             </div>
+        </div>
 
+        <!-- Total Active Accounts -->
+        <div class="kpi-card accounts">
+            <div>
+                <div class="kpi-meta">Total Active Accounts</div>
+                <div class="kpi-value">
+                    @(Model?.TotalActiveAccounts ?? 0)
+                </div>
+                <div class="kpi-subtext">out of @(Model?.TotalAccounts ?? 0) accounts</div>
+            </div>
+            <div class="kpi-icon-wrap">
+                <i class="bi bi-check-circle-fill text-success"></i>
+            </div>
+        </div>
+
+        <!-- Total Customers -->
+        <div class="kpi-card customers">
+            <div>
+                <div class="kpi-meta">Total Customers</div>
+                <div class="kpi-value">
+                    @(Model?.TotalCustomers ?? 0)
+                </div>
+                <div class="kpi-subtext">Registered customers</div>
+            </div>
+            <div class="kpi-icon-wrap">
+                <i class="bi bi-people-fill"></i>
+            </div>
+        </div>
+
+        <!-- Total Transactions -->
+        <div class="kpi-card transactions">
+            <div>
+                <div class="kpi-meta">Total Transactions</div>
+                <div class="kpi-value">
+                    @(Model?.TotalTransactions ?? 0)
+                </div>
+                <div class="kpi-subtext">Completed records</div>
+            </div>
+            <div class="kpi-icon-wrap">
+                <i class="bi bi-arrow-left-right"></i>
+            </div>
         </div>
 
     </div>
 
+    <!-- ======================================================
+         4. CORE MODULES & RECENT TRANSACTIONS (COMPACT LAYOUT)
+         ====================================================== -->
+    <div class="workspace-grid">
 
+        <!-- LEFT: THE 3 CORE MODULES -->
+        <div>
+            <h2 class="section-title">
+                <i class="bi bi-grid-fill"></i>
+                Management Modules
+            </h2>
 
-    <!-- =========================
-         BANKING FEATURES
-         ========================= -->
+            <div class="modules-list">
 
-    <div>
+                <!-- 1. Customers -->
+                <div class="module-item-card">
+                    <div class="module-card-top">
+                        <div class="module-icon-box customer">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="module-heading">Customer Management</h3>
+                            <p class="module-description">Add, update, and manage customer profile records and details.</p>
+                        </div>
+                    </div>
+                    <div class="module-btns-row">
+                        <a asp-controller="Customer" asp-action="Index" class="module-btn-main">
+                            <i class="bi bi-people-fill"></i> View Customers
+                        </a>
+                        <a asp-controller="Customer" asp-action="Add" class="module-btn-sub">
+                            <i class="bi bi-person-plus-fill"></i> Add Customer
+                        </a>
+                    </div>
+                </div>
 
-        <div class="section-title">
-            Banking Features
+                <!-- 2. Accounts -->
+                <div class="module-item-card">
+                    <div class="module-card-top">
+                        <div class="module-icon-box account">
+                            <i class="bi bi-bank2"></i>
+                        </div>
+                        <div>
+                            <h3 class="module-heading">Account Management</h3>
+                            <p class="module-description">Open new accounts, monitor balances, and update account status.</p>
+                        </div>
+                    </div>
+                    <div class="module-btns-row">
+                        <a asp-controller="Account" asp-action="Index" class="module-btn-main">
+                            <i class="bi bi-bank"></i> View Accounts
+                        </a>
+                        <a asp-controller="Account" asp-action="Add" class="module-btn-sub">
+                            <i class="bi bi-plus-circle-fill"></i> New Account
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. Transactions -->
+                <div class="module-item-card">
+                    <div class="module-card-top">
+                        <div class="module-icon-box transaction">
+                            <i class="bi bi-arrow-left-right"></i>
+                        </div>
+                        <div>
+                            <h3 class="module-heading">Transaction Management</h3>
+                            <p class="module-description">Perform cash deposits, withdrawals, fund transfers, and review logs.</p>
+                        </div>
+                    </div>
+                    <div class="module-btns-row">
+                        <a asp-controller="Transaction" asp-action="Index" class="module-btn-main">
+                            <i class="bi bi-arrow-repeat"></i> Transaction Portal
+                        </a>
+                        <a asp-controller="Transaction" asp-action="History" class="module-btn-sub">
+                            <i class="bi bi-clock-history"></i> Transaction History
+                        </a>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
+        <!-- RIGHT: RECENT TRANSACTIONS (COMPACT FEED) -->
+        <div>
+            <h2 class="section-title">
+                <i class="bi bi-clock-history"></i>
+                Recent Activity
+            </h2>
 
-        <div class="modules-grid">
-
-
-            <!-- =====================
-                 CUSTOMERS
-                 ===================== -->
-
-            <div class="module-card customers-card">
-
-                <div class="module-icon">
-
-                    <i class="bi bi-people-fill"></i>
-
+            <div class="transactions-card">
+                <div class="tx-card-header">
+                    <h3 class="tx-card-title">
+                        <i class="bi bi-activity"></i>
+                        Recent Transactions
+                    </h3>
+                    <a asp-controller="Transaction" asp-action="History" class="tx-view-all">View All →</a>
                 </div>
 
+                @if (Model?.RecentTransactions != null && Model.RecentTransactions.Any())
+                {
+                    <div class="tx-feed-list">
+                        @foreach (var tx in Model.RecentTransactions)
+                        {
+                            var isDeposit = string.Equals(tx.TransactionType, "Deposit", StringComparison.OrdinalIgnoreCase);
+                            var isWithdrawal = string.Equals(tx.TransactionType, "Withdrawal", StringComparison.OrdinalIgnoreCase);
+                            var iconClass = isDeposit ? "deposit" : (isWithdrawal ? "withdrawal" : "transfer");
+                            var iconSymbol = isDeposit ? "bi-box-arrow-in-down-left" : (isWithdrawal ? "bi-box-arrow-up-right" : "bi-arrow-left-right");
+                            var sumClass = isDeposit ? "positive" : (isWithdrawal ? "negative" : "neutral");
+                            var prefix = isDeposit ? "+" : (isWithdrawal ? "-" : "");
 
-                <div class="module-title">
-                    Customers
-                </div>
-
-
-                <p class="module-description">
-                    Add, update and manage customer information.
-                </p>
-
-
-                <a asp-controller="Customer"
-                   asp-action="Index"
-                   class="module-btn customers-btn">
-
-                    <i class="bi bi-person-lines-fill"></i>
-
-                    Manage Customers
-
-                </a>
-
+                            <div class="tx-feed-row">
+                                <div class="tx-left">
+                                    <div class="tx-icon-pill @iconClass">
+                                        <i class="bi @iconSymbol"></i>
+                                    </div>
+                                    <div>
+                                        <p class="tx-type-text">@tx.TransactionType</p>
+                                        @{
+                                            var localTxDate = DateTime.SpecifyKind(tx.TransactionDate, DateTimeKind.Utc).ToLocalTime();
+                                        }
+                                        <p class="tx-date-text">@localTxDate.ToString("dd MMM yyyy, hh:mm tt")</p>
+                                    </div>
+                                </div>
+                                <div class="tx-right">
+                                    <div class="tx-amount-text @sumClass">@prefix₹@tx.Amount.ToString("N2")</div>
+                                    <div class="tx-acct-text">Acct: @(tx.AccountNumber != 0 ? tx.AccountNumber.ToString() : "#" + tx.AccountId)</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-tx-box">
+                        <i class="bi bi-clock-history"></i>
+                        <p class="mb-1 fw-semibold text-dark">No Recent Transactions</p>
+                        <p class="small text-muted mb-0">Use the Quick Actions above to record deposits, withdrawals, or transfers.</p>
+                    </div>
+                }
             </div>
-
-
-
-            <!-- =====================
-                 ACCOUNTS
-                 ===================== -->
-
-            <div class="module-card accounts-card">
-
-                <div class="module-icon">
-
-                    <i class="bi bi-bank2"></i>
-
-                </div>
-
-
-                <div class="module-title">
-                    Accounts
-                </div>
-
-
-                <p class="module-description">
-                    Manage bank accounts, balances and account status.
-                </p>
-
-
-                <a asp-controller="Account"
-                   asp-action="Index"
-                   class="module-btn accounts-btn">
-
-                    <i class="bi bi-bank"></i>
-
-                    Manage Accounts
-
-                </a>
-
-            </div>
-
-
-
-            <!-- =====================
-                 TRANSACTIONS
-                 ===================== -->
-
-            <div class="module-card transactions-card">
-
-                <div class="module-icon">
-
-                    <i class="bi bi-arrow-left-right"></i>
-
-                </div>
-
-
-                <div class="module-title">
-                    Transactions
-                </div>
-
-
-                <p class="module-description">
-                    Manage deposits, withdrawals and account transfers.
-                </p>
-
-
-                <a asp-controller="Transaction"
-                   asp-action="Index"
-                   class="module-btn transactions-btn">
-
-                    <i class="bi bi-arrow-left-right"></i>
-
-                    Manage Transactions
-
-                </a>
-
-            </div>
-
-
-
-            <!-- =====================
-                 PAYMENTS
-                 ===================== -->
-
-            <div class="module-card payments-card">
-
-                <div class="module-icon">
-
-                    <i class="bi bi-credit-card-2-front-fill"></i>
-
-                </div>
-
-
-                <div class="module-title">
-                    Payments
-                </div>
-
-
-                <p class="module-description">
-                    Manage payment services and future payment operations.
-                </p>
-
-
-                <a asp-controller="Payment"
-                   asp-action="Index"
-                   class="module-btn payments-btn">
-
-                    <i class="bi bi-arrow-right-circle"></i>
-
-                    Explore Payments
-
-                </a>
-
-            </div>
-
-
-
-            <!-- =====================
-                 AI ASSISTANT
-                 ===================== -->
-
-            <div class="module-card ai-card">
-
-                <div class="module-icon">
-
-                    <i class="bi bi-robot"></i>
-
-                </div>
-
-
-                <div class="module-title d-flex align-items-center justify-content-between">
-                    <span>AI Assistant</span>
-                    <span class="badge" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white; font-size: 10px; font-weight: 700; border-radius: 6px; padding: 3px 6px;">AI</span>
-                </div>
-
-
-                <p class="module-description">
-                    Instant analytics on transactions, active accounts & customer lookups.
-                </p>
-
-
-                <a asp-controller="Chat"
-                   asp-action="Index"
-                   class="module-btn ai-btn">
-
-                    <i class="bi bi-stars"></i>
-
-                    Open Assistant
-
-                </a>
-
-            </div>
-
-
-
-            <!-- =====================
-                 REPORTS
-                 ===================== -->
-
-            <div class="module-card reports-card">
-
-                <div class="module-icon">
-
-                    <i class="bi bi-bar-chart-fill"></i>
-
-                </div>
-
-
-                <div class="module-title">
-                    Reports
-                </div>
-
-
-                <p class="module-description">
-                    View transaction, account and customer reports.
-                </p>
-
-
-                <a asp-controller="Report"
-                   asp-action="Index"
-                   class="module-btn reports-btn">
-
-                    <i class="bi bi-arrow-right-circle"></i>
-
-                    Explore Reports
-
-                </a>
-
-            </div>
-
-
         </div>
 
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        function updateLiveClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            
+            const clockEl = document.getElementById('liveClockDisplay');
+            const dateEl = document.getElementById('liveDateDisplay');
+            
+            if (clockEl) clockEl.textContent = timeStr;
+            if (dateEl) dateEl.textContent = dateStr;
+        }
+
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+    </script>
+}

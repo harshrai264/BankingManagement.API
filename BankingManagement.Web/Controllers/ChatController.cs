@@ -39,7 +39,7 @@ namespace BankingManagement.Web.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

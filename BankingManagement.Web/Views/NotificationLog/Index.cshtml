@@ -1,0 +1,313 @@
+@model List<BankingManagement.Web.Models.EmailLogViewModel>
+
+@{
+    ViewData["Title"] = "Notification Logs";
+    var totalCount = Model?.Count ?? 0;
+    var sentCount = Model?.Count(x => string.Equals(x.Status, "Sent", StringComparison.OrdinalIgnoreCase)) ?? 0;
+    var failedCount = Model?.Count(x => string.Equals(x.Status, "Failed", StringComparison.OrdinalIgnoreCase)) ?? 0;
+}
+
+<div class="container-fluid px-4 py-4" style="max-width: 1280px;">
+
+    <!-- Simple Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-bell-fill text-primary"></i>
+                Notification Logs
+            </h2>
+        </div>
+        <div>
+            <button onclick="window.location.reload();" class="btn btn-light btn-sm rounded-pill px-3 border fw-semibold">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            @ViewBag.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Simple KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Total Logs</div>
+                        <div class="fs-4 fw-bold text-dark">@totalCount</div>
+                    </div>
+                    <div class="rounded-3 bg-light text-primary p-2 fs-5">
+                        <i class="bi bi-envelope-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Sent</div>
+                        <div class="fs-4 fw-bold text-success">@sentCount</div>
+                    </div>
+                    <div class="rounded-3 bg-light text-success p-2 fs-5">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold">Failed</div>
+                        <div class="fs-4 fw-bold @(failedCount > 0 ? "text-danger" : "text-muted")">@failedCount</div>
+                    </div>
+                    <div class="rounded-3 bg-light text-danger p-2 fs-5">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
+        <!-- Search & Status Filter -->
+        <div class="p-3 border-bottom bg-light bg-opacity-50">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-8">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" id="logSearchInput" class="form-control border-start-0" placeholder="Search by customer name, email, or message..." onkeyup="filterNotificationLogs()" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select id="statusFilter" class="form-select form-select-sm" onchange="filterNotificationLogs()">
+                        <option value="">All Statuses</option>
+                        <option value="Sent">Sent</option>
+                        <option value="Failed">Failed</option>
+                    </select>
+                </div>
+                <div class="col-md-1 text-md-end">
+                    <button class="btn btn-outline-secondary btn-sm w-100" onclick="resetFilters()" title="Reset Filters">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="notificationLogsTable">
+                <thead class="table-light text-muted small text-uppercase fw-bold">
+                    <tr>
+                        <th class="ps-4" style="width: 110px;">Status</th>
+                        <th style="width: 170px;">Customer Name</th>
+                        <th style="width: 220px;">Email</th>
+                        <th>Message</th>
+                        <th style="width: 160px;">Sent Time</th>
+                        <th class="text-end pe-4" style="width: 90px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var log in Model)
+                        {
+                            var isSent = string.Equals(log.Status, "Sent", StringComparison.OrdinalIgnoreCase);
+                            var localSentAt = DateTime.SpecifyKind(log.SentAt, DateTimeKind.Utc).ToLocalTime();
+
+                            <tr class="log-row" 
+                                data-search="@(log.RecipientName?.ToLower()) @(log.RecipientEmail?.ToLower()) @(log.Message?.ToLower()) @(log.Subject?.ToLower())"
+                                data-status="@log.Status">
+                                <td class="ps-4">
+                                    @if (isSent)
+                                    {
+                                        <span class="badge rounded-pill bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 fw-semibold">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Sent
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1 fw-semibold" title="@log.ErrorMessage">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Failed
+                                        </span>
+                                    }
+                                </td>
+                                <td class="fw-bold text-dark">
+                                    @(string.IsNullOrWhiteSpace(log.RecipientName) ? "Customer" : log.RecipientName)
+                                </td>
+                                <td>
+                                    <span class="text-muted small font-monospace">@log.RecipientEmail</span>
+                                </td>
+                                <td style="max-width: 380px;">
+                                    <div class="text-truncate fw-semibold text-dark small" title="@log.Subject">
+                                        @log.Subject
+                                    </div>
+                                    <div class="text-truncate text-muted small" title="@log.Message">
+                                        @log.Message
+                                    </div>
+                                </td>
+                                <td class="text-muted small text-nowrap">
+                                    <div>@localSentAt.ToString("dd MMM yyyy")</div>
+                                    <div style="font-size: 11px;">@localSentAt.ToString("hh:mm tt")</div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button type="button" 
+                                            class="btn btn-sm btn-light border rounded-pill px-3 fw-semibold text-primary"
+                                            onclick='openDetailModal(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(log)))'>
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr id="noLogsRow">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-envelope display-5 text-muted opacity-50 mb-2 d-block"></i>
+                                <h6 class="fw-semibold text-dark mb-1">No Notification Logs Found</h6>
+                                <p class="small text-muted mb-0">Email logs will appear here when account deposits, withdrawals, or transfers take place.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Viewing Message Details -->
+<div class="modal fade" id="emailDetailModal" tabindex="-1" aria-labelledby="emailDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-3 border-0 shadow">
+            <div class="modal-header border-bottom bg-light px-4 py-3">
+                <h5 class="modal-title fw-bold text-dark mb-0" id="emailDetailModalLabel">Notification Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                
+                <!-- Status Row -->
+                <div class="p-3 rounded-3 mb-3" id="modalStatusContainer"></div>
+
+                <!-- Info Grid -->
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="text-muted small fw-semibold">Customer Name</div>
+                            <div class="fw-bold text-dark" id="modalCustomerName"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded-3">
+                            <div class="text-muted small fw-semibold">Email</div>
+                            <div class="fw-bold text-dark font-monospace small" id="modalEmail"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subject -->
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Subject</label>
+                    <div class="p-2 px-3 border rounded-3 fw-semibold text-dark bg-white" id="modalSubject"></div>
+                </div>
+
+                <!-- Message Body -->
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-muted text-uppercase mb-1">Message Sent</label>
+                    <pre class="p-3 border rounded-3 bg-light font-monospace small mb-0 text-dark" style="white-space: pre-wrap; word-break: break-word; max-height: 250px; overflow-y: auto;" id="modalMessage"></pre>
+                </div>
+
+                <!-- Sent Time -->
+                <div class="text-muted small" id="modalSentTime"></div>
+
+            </div>
+            <div class="modal-footer border-top bg-light px-4 py-2">
+                <button type="button" class="btn btn-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filterNotificationLogs() {
+            const searchVal = (document.getElementById('logSearchInput').value || '').toLowerCase().trim();
+            const statusVal = (document.getElementById('statusFilter').value || '').toLowerCase().trim();
+
+            const rows = document.querySelectorAll('.log-row');
+
+            rows.forEach(row => {
+                const searchData = (row.getAttribute('data-search') || '').toLowerCase();
+                const status = (row.getAttribute('data-status') || '').toLowerCase();
+
+                const matchesSearch = !searchVal || searchData.includes(searchVal);
+                const matchesStatus = !statusVal || status === statusVal;
+
+                if (matchesSearch && matchesStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function resetFilters() {
+            document.getElementById('logSearchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            filterNotificationLogs();
+        }
+
+        function openDetailModal(log) {
+            if (!log) return;
+
+            document.getElementById('modalCustomerName').innerText = log.RecipientName || 'Customer';
+            document.getElementById('modalEmail').innerText = log.RecipientEmail || 'N/A';
+            document.getElementById('modalSubject').innerText = log.Subject || '';
+            document.getElementById('modalMessage').innerText = log.Message || '';
+
+            let localDateStr = '';
+            try {
+                const rawDate = log.SentAt ? (log.SentAt.endsWith('Z') ? log.SentAt : log.SentAt + 'Z') : null;
+                localDateStr = rawDate ? new Date(rawDate).toLocaleString() : new Date().toLocaleString();
+            } catch {
+                localDateStr = new Date().toLocaleString();
+            }
+            document.getElementById('modalSentTime').innerText = 'Sent Time: ' + localDateStr;
+
+            const isSent = (log.Status || '').toLowerCase() === 'sent';
+            const statusContainer = document.getElementById('modalStatusContainer');
+
+            if (isSent) {
+                statusContainer.className = 'p-3 rounded-3 mb-3 bg-success bg-opacity-10 border border-success border-opacity-25';
+                statusContainer.innerHTML = `
+                    <div class="d-flex align-items-center gap-2 text-success fw-bold">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Status: Sent</span>
+                    </div>
+                `;
+            } else {
+                statusContainer.className = 'p-3 rounded-3 mb-3 bg-danger bg-opacity-10 border border-danger border-opacity-25';
+                statusContainer.innerHTML = `
+                    <div class="d-flex align-items-center gap-2 text-danger fw-bold">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <span>Status: Failed</span>
+                    </div>
+                    <div class="small text-danger mt-1"><strong>Error:</strong> ${log.ErrorMessage || 'Delivery failed'}</div>
+                `;
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('emailDetailModal'));
+            modal.show();
+        }
+    </script>
+}

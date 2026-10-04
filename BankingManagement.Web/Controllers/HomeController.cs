@@ -52,7 +52,11 @@ namespace BankingManagement.Web.Controllers
                     if (stats != null)
                     {
                         viewModel.TotalCustomers = stats.TotalCustomers;
+                        viewModel.TotalAccounts = stats.TotalAccounts;
+                        viewModel.TotalActiveAccounts = stats.TotalActiveAccounts;
                         viewModel.TotalAmount = stats.TotalAmount;
+                        viewModel.TotalTransactions = stats.TotalTransactions;
+                        viewModel.RecentTransactions = stats.RecentTransactions ?? new();
                         return View(viewModel);
                     }
                 }
@@ -67,6 +71,8 @@ namespace BankingManagement.Web.Controllers
                 var accounts = await client.GetFromJsonAsync<List<AccountModel>>("api/Account/GetAll");
                 if (accounts != null)
                 {
+                    viewModel.TotalAccounts = accounts.Count;
+                    viewModel.TotalActiveAccounts = accounts.Count(a => string.Equals(a.Status, "Active", StringComparison.OrdinalIgnoreCase));
                     viewModel.TotalAmount = accounts.Sum(a => a.Balance);
                 }
             }
