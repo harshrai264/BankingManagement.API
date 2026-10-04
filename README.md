@@ -203,21 +203,29 @@ dotnet run --project BankingManagement.Web
 
 ## 📡 API Endpoints Overview
 
-| Method | Route | Description |
-|---|---|---|
-| `POST` | `/api/auth/login` | Authenticate customer/admin & receive JWT |
-| `POST` | `/api/auth/register` | Register new customer account |
-| `GET` | `/api/customer` | Retrieve all customers (Admin) |
-| `GET` | `/api/customer/{id}` | Retrieve specific customer profile |
-| `GET` | `/api/account` | Retrieve all accounts |
-| `GET` | `/api/account/{id}` | Retrieve specific bank account details |
-| `POST` | `/api/account` | Open a new bank account |
-| `POST` | `/api/transaction/deposit` | Process deposit into account |
-| `POST` | `/api/transaction/withdraw` | Process withdrawal from account |
-| `POST` | `/api/transaction/transfer` | Process fund transfer between accounts |
-| `GET` | `/api/emaillog` | View outgoing email transaction logs |
-| `GET` | `/api/dashboard/stats` | Aggregate dashboard KPI metrics |
-| `POST` | `/api/chat` | AI assistant inquiry |
+> 📖 **Full API Reference**: For exhaustive payload examples, request bodies, query params, and status codes, please see [API_DOCUMENTATION.md](file:///c:/Users/HARSH%20RAI/source/repos/BankingManagement/API_DOCUMENTATION.md).
+
+| Category | Method | Route | Description |
+|---|---|---|---|
+| **Auth** | `POST` | `/api/User/CreateUser` | Register a new user/admin |
+| | `POST` | `/api/User/Login` | Authenticate & get JWT Bearer token |
+| **Customer** | `POST` | `/api/Customer/add` | Create customer(s) |
+| | `GET` | `/api/Customer/GetAll` | Retrieve all customers |
+| | `GET` | `/api/Customer/Get/{id}` | Retrieve customer profile by ID |
+| | `PUT` | `/api/Customer/Update/{id}` | Update customer details |
+| | `DELETE` | `/api/Customer/Delete/{id}` | Delete customer by ID |
+| **Account** | `POST` | `/api/Account/add` | Open a new bank account |
+| | `GET` | `/api/Account/GetAll` | Retrieve all accounts |
+| | `GET` | `/api/Account/GetById/{accountId}` | Retrieve bank account details |
+| | `PUT` | `/api/Account/Update/{accountId}` | Update account balance/status |
+| **Transactions** | `POST` | `/api/Transaction/Deposit` | Deposit money & send email alert |
+| | `POST` | `/api/Transaction/Withdraw` | Withdraw funds & send email alert |
+| | `POST` | `/api/Transaction/Transfer` | Transfer funds & send email alert |
+| | `GET` | `/api/Transaction/TransHistory/{accountId}` | View transaction statement |
+| **Email Logs** | `GET` | `/api/EmailLog/GetAll` | Retrieve sent email logs |
+| | `GET` | `/api/EmailLog/{id}` | Retrieve specific email log entry |
+| **Dashboard** | `GET` | `/api/Dashboard/Stats` | Aggregate dashboard KPI metrics |
+| **AI Assistant** | `POST` | `/api/Chat/Ask` | AI assistant inquiry |
 
 ---
 
